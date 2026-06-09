@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SAMUDUHA SDA SABBATH SCHOOL ATTENDANCE</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
+<style>
+:root{
+  --color-background-primary:#ffffff;--color-background-secondary:#f4f5f7;
+  --color-background-tertiary:#e9ebee;--color-background-danger:#fff0f0;
+  --color-text-primary:#1a1a2e;--color-text-secondary:#5c6370;
+  --color-text-tertiary:#9aa0ac;--color-text-danger:#d32f2f;
+  --color-border-secondary:#dde1e7;--color-border-tertiary:#eaecf0;
+  --font-sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  --border-radius-md:8px;--border-radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --color-background-primary:#1e2029;--color-background-secondary:#252733;
+    --color-background-tertiary:#16181f;--color-background-danger:#3a1a1a;
+    --color-text-primary:#e8eaf0;--color-text-secondary:#9aa0b0;
+    --color-text-tertiary:#5c6370;--color-text-danger:#ef5350;
+    --color-border-secondary:#2e3140;--color-border-tertiary:#252733;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);min-height:100vh;padding:1rem;}
+input,select,button{font-family:var(--font-sans);border-radius:var(--border-radius-md);padding:0 12px;height:36px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-primary);}
+input::placeholder{color:var(--color-text-tertiary);}
+input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
+.page{max-width:600px;margin:0 auto;}
+.screen{display:none;}.screen.active{display:block;}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.5rem;}
+.church-icon{width:52px;height:52px;border-radius:var(--border-radius-lg);background:#EBF3FD;display:flex;align-items:center;justify-content:center;margin:0 auto 1rem;}
+.church-icon i{font-size:26px;color:#185FA5;}
+.center{text-align:center;}
+.title{font-size:15px;font-weight:600;color:var(--color-text-primary);line-height:1.3;}
+.sub{font-size:12px;color:var(--color-text-secondary);margin-top:4px;}
+.field{margin-top:1rem;}
+.field label{display:block;font-size:13px;color:var(--color-text-secondary);margin-bottom:5px;}
+.field input,.field select{width:100%;font-size:13px;}
+.pw-wrap{position:relative;}.pw-wrap input{padding-right:36px;}
+.pw-eye{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;height:auto;padding:0;cursor:pointer;color:var(--color-text-tertiary);display:flex;align-items:center;}
+.btn-login{width:100%;background:#185FA5;color:#fff;border:none;height:38px;font-size:14px;font-weight:500;cursor:pointer;margin-top:1.25rem;border-radius:var(--border-radius-md);}
+.btn-login:hover{background:#0C447C;}
+.err{font-size:12px;color:var(--color-text-danger);background:var(--color-background-danger);border-radius:var(--border-radius-md);padding:8px 12px;margin-top:.75rem;text-align:center;display:none;}
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
+.loading-overlay.active{display:flex;}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite;}
+.loading-text{color:#fff;font-size:14px;font-weight:500;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:12px;}
+.topbar-title{font-size:12px;font-weight:600;color:var(--color-text-primary);display:flex;align-items:center;gap:8px;line-height:1.3;flex-wrap:wrap;}
+.btn-sm{font-size:12px;background:none;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:4px 10px;height:auto;cursor:pointer;color:var(--color-text-secondary);white-space:nowrap;}
+.badge{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:500;height:auto;}
+.badge-admin{background:#EBF3FD;color:#185FA5;}
+.badge-leader{background:#E1F5EE;color:#085041;}
+.sabbath-banner{border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:12px;}
+.banner-saturday{background:#E1F5EE;border:0.5px solid #5DCAA5;color:#085041;}
+.banner-other{background:#EBF3FD;border:0.5px solid #185FA5;color:#0C447C;}
+.banner-reset{background:#FAEEDA;border:0.5px solid #D4922A;color:#633806;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.dash-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:18px 16px;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;gap:10px;}
+.dash-card:hover,.dash-card.active{border-color:#185FA5;background:#EBF3FD;}
+.dash-card.active .dash-title{color:#185FA5;}
+.dash-icon{width:40px;height:40px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:20px;}
+.dash-icon-blue{background:#EBF3FD;color:#185FA5;}
+.dash-icon-indigo{background:#EEEDFE;color:#3C3489;}
+.dash-title{font-size:13px;font-weight:700;color:var(--color-text-primary);transition:color .2s;}
+.dash-sub{font-size:11px;color:var(--color-text-secondary);margin-top:2px;}
+.dash-arrow{font-size:13px;color:#185FA5;margin-top:auto;align-self:flex-end;}
+.section-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid var(--color-border-tertiary);}
+.section-header-icon{width:28px;height:28px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;}
+.section-title-text{font-size:13px;font-weight:700;color:var(--color-text-primary);letter-spacing:.02em;}
+.btn-back-section{margin-left:auto;font-size:12px;background:none;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:3px 9px;height:auto;cursor:pointer;color:var(--color-text-secondary);}
+.igihande-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;}
+.ig-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:12px;}
+.ig-card:hover,.ig-card.active{border-color:#185FA5;background:#EBF3FD;}
+.ig-card.active .ig-name{color:#185FA5;}
+.ig-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.ig-name{font-size:13px;font-weight:500;color:var(--color-text-primary);transition:color .15s;}
+.ig-members{font-size:11px;color:var(--color-text-secondary);}
+.tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.tab{font-size:12px;padding:5px 14px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s;font-weight:500;height:auto;}
+.tab:hover{border-color:#185FA5;color:#185FA5;}
+.tab.active{background:#185FA5;color:#fff;border-color:#185FA5;}
+.itsinda-tabs{display:flex;gap:5px;margin-bottom:12px;flex-wrap:wrap;}
+.it-tab{font-size:11px;padding:4px 11px;border-radius:16px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s;height:auto;}
+.it-tab:hover{border-color:#185FA5;color:#185FA5;}
+.it-tab.active{background:#185FA5;color:#fff;border-color:#185FA5;}
+.cat-stats{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:10px;}
+.cat-stats-title{font-size:11px;font-weight:600;color:#185FA5;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:5px;}
+.cat-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;}
+.cat-stat{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 6px;text-align:center;cursor:pointer;transition:all .15s;border:0.5px solid transparent;}
+.cat-stat:hover{border-color:#185FA5;}
+.cat-stat.active{background:#EBF3FD;border-color:#185FA5;}
+.cat-stat.active .cat-stat-label{color:#185FA5;}
+.cat-stat-label{font-size:10px;color:var(--color-text-secondary);margin-bottom:2px;}
+.cat-stat-val{font-size:17px;font-weight:600;}
+.score-btns{display:flex;gap:4px;flex-shrink:0;}
+.score-btn{width:34px;height:30px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-tertiary);font-size:13px;font-weight:500;cursor:pointer;transition:all .15s;padding:0;}
+.score-btn:hover{border-color:#185FA5;color:#185FA5;}
+.score-btn.s1{background:#EBF3FD;color:#185FA5;border-color:#185FA5;}
+.score-btn.s7{background:#E1F5EE;color:#085041;border-color:#5DCAA5;}
+.toolbar{display:flex;gap:8px;margin-bottom:10px;}
+.toolbar input{flex:1;font-size:13px;height:34px;}
+.btn-add-sm{height:34px;padding:0 12px;font-size:13px;background:#185FA5;color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;}
+.btn-add-sm:hover{background:#0C447C;}
+.member-list{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;margin-bottom:10px;}
+.member-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:0.5px solid var(--color-border-tertiary);}
+.member-row:last-child{border-bottom:none;}
+.avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;flex-shrink:0;}
+.minfo{flex:1;min-width:0;}
+.mname{font-size:13px;font-weight:500;color:var(--color-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mcat{font-size:11px;color:var(--color-text-secondary);}
+.btn-del{background:none;border:none;cursor:pointer;color:var(--color-text-tertiary);padding:3px;height:auto;border-radius:var(--border-radius-md);}
+.btn-del:hover{color:#d32f2f;background:var(--color-background-danger);}
+.empty{padding:1.5rem;text-align:center;font-size:13px;color:var(--color-text-tertiary);}
+.visitors-box{background:var(--color-background-primary);border:0.5px solid #185FA5;border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;}
+.visitors-label{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:#185FA5;flex:1;}
+.visitors-input-wrap{display:flex;align-items:center;gap:6px;}
+.visitors-input{width:72px;height:34px;font-size:16px;font-weight:600;text-align:center;border:0.5px solid #185FA5;border-radius:var(--border-radius-md);background:#EBF3FD;color:#185FA5;}
+.visitors-input:focus{outline:none;}
+.v-btn{width:28px;height:28px;border-radius:var(--border-radius-md);border:0.5px solid #185FA5;background:#EBF3FD;color:#185FA5;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:600;line-height:1;padding:0;}
+.v-btn:hover{background:#185FA5;color:#fff;}
+.legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);}
+.legend-box{width:24px;height:22px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;}
+.footer-btns{display:flex;gap:8px;margin-top:4px;}
+.btn-save{flex:1;background:#185FA5;color:#fff;border:none;border-radius:var(--border-radius-md);height:38px;font-size:14px;font-weight:500;cursor:pointer;}
+.btn-save:hover{background:#0C447C;}
+.toast{display:none;border-radius:var(--border-radius-md);padding:9px 14px;font-size:13px;align-items:center;gap:8px;margin-top:10px;}
+.toast.success{background:#EBF3FD;border:0.5px solid #185FA5;color:#0C447C;}
+.toast.error{background:#fff0f0;border:0.5px solid #d32f2f;color:#d32f2f;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);align-items:center;justify-content:center;padding:1rem;z-index:100;}
+.modal{background:var(--color-background-primary);border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);padding:1.5rem;width:100%;max-width:320px;max-height:90vh;overflow-y:auto;}
+.modal h3{font-size:15px;font-weight:500;margin-bottom:1rem;color:var(--color-text-primary);}
+.modal label{font-size:12px;color:var(--color-text-secondary);display:block;margin-bottom:4px;margin-top:10px;}
+.modal input,.modal select{width:100%;font-size:13px;}
+.modal-btns{display:flex;gap:8px;margin-top:1rem;}
+.modal-btns button{flex:1;height:34px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;padding:0;}
+.btn-confirm{background:#185FA5;color:#fff;border:none;}
+.btn-cancel{background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);}
+.role-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.role-opt{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s;}
+.role-opt:hover{border-color:#185FA5;}
+.role-opt.selected{border-color:#185FA5;background:#EBF3FD;}
+.role-opt.selected .role-opt-title{color:#185FA5;}
+.role-opt-icon{font-size:20px;margin-bottom:4px;}
+.role-opt-title{font-size:12px;font-weight:600;color:var(--color-text-primary);}
+.role-opt-sub{font-size:10px;color:var(--color-text-secondary);margin-top:2px;}
+.ig-field{margin-top:10px;}
+.fix-note{font-size:11px;background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:7px 12px;margin-bottom:10px;color:#085041;display:flex;align-items:center;gap:7px;}
+.imim-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:12px;}
+.imim-school-title{font-size:13px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:flex;align-items:center;gap:7px;}
+.imim-school-sub{font-size:11px;color:var(--color-text-secondary);margin-bottom:12px;}
+.formula-note{font-size:11px;color:var(--color-text-tertiary);background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:14px;line-height:1.6;}
+.imim-table-wrap{overflow-x:auto;}
+.imim-table{width:100%;border-collapse:collapse;font-size:12px;min-width:500px;}
+.imim-table thead tr th{background:#185FA5;color:#fff;padding:9px 8px;font-weight:600;font-size:11px;white-space:nowrap;text-align:center;}
+.imim-table thead tr th.left{text-align:left;}
+.imim-table thead tr th.vis-col{background:#3C6EA0;}
+.imim-table tbody td{padding:10px 8px;border-bottom:0.5px solid var(--color-border-tertiary);text-align:center;vertical-align:middle;}
+.imim-table tbody td.left{text-align:left;font-weight:600;font-size:13px;color:var(--color-text-primary);}
+.imim-table tbody td.vis-col{color:#185FA5;font-weight:500;}
+.imim-table tbody tr:last-child td{border-bottom:none;}
+.imim-table tbody tr.final-row td{background:#EBF3FD;font-weight:700;color:#185FA5;font-size:13px;border-top:1.5px solid #185FA5;}
+.imim-table tbody tr:not(.final-row):hover td{background:var(--color-background-secondary);}
+.score-pill{display:inline-block;padding:3px 10px;border-radius:20px;font-weight:700;font-size:12px;min-width:48px;text-align:center;}
+.pill-high{background:#E1F5EE;color:#085041;}
+.pill-mid{background:#EBF3FD;color:#185FA5;}
+.pill-low{background:#FAEEDA;color:#633806;}
+.pill-zero{background:var(--color-background-secondary);color:var(--color-text-tertiary);}
+.num-cell{font-size:14px;font-weight:500;color:var(--color-text-primary);}
+</style>
+</head>
+<body>
+<div class="page">
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loading-overlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loading-text">Loading...</div>
+</div>
+
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div style="max-width:340px;margin:2rem auto;">
+    <div class="card">
+      <div class="church-icon"><i class="ti ti-building-church"></i></div>
+      <div class="center">
+        <p class="title">SAMUDUHA SDA SABBATH SCHOOL ATTENDANCE</p>
+        <p class="sub">Igihande Attendance System</p>
+      </div>
+      <div class="field"><label>Username</label><input type="text" id="l-user" placeholder="Enter username"/></div>
+      <div class="field"><label>Password</label>
+        <div class="pw-wrap">
+          <input type="password" id="l-pass" placeholder="Enter password"/>
+          <button class="pw-eye" onclick="togglePw()"><i class="ti ti-eye" id="eye-icon" style="font-size:16px;"></i></button>
+        </div>
+      </div>
+      <button class="btn-login" onclick="doLogin()"><i class="ti ti-login" style="font-size:15px;vertical-align:-2px;margin-right:5px;"></i>Sign in</button>
+      <div class="err" id="login-err">Wrong username or password.</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="screen-home">
+  <div class="topbar">
+    <div class="topbar-title">
+      <i class="ti ti-building-church" style="font-size:18px;color:#185FA5;flex-shrink:0;"></i>
+      SAMUDUHA SDA SABBATH SCHOOL
+      <span class="badge" id="role-badge"></span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+      <button id="btn-create-acc" class="btn-add-sm" style="display:none;height:30px;font-size:12px;" onclick="openCreateAccount()"><i class="ti ti-user-plus" style="font-size:13px;"></i>New account</button>
+      <button class="btn-sm" onclick="signOut()"><i class="ti ti-logout" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>Sign out</button>
+    </div>
+  </div>
+  <div class="sabbath-banner" id="sabbath-banner"></div>
+  <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:14px;">
+    <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);">Welcome, <span id="welcome-name"></span></p>
+    <p style="font-size:12px;color:var(--color-text-secondary);" id="home-sub"></p>
+  </div>
+  <div class="dash-grid" id="admin-dash-cards" style="display:none;">
+    <div class="dash-card" id="dash-gutanga" onclick="showSection('gutanga')">
+      <div class="dash-icon dash-icon-blue"><i class="ti ti-clipboard-list"></i></div>
+      <div><div class="dash-title">GUTANGA IMIMURIKO</div><div class="dash-sub">Igihande attendance records</div></div>
+      <div class="dash-arrow"><i class="ti ti-arrow-right"></i></div>
+    </div>
+    <div class="dash-card" id="dash-imimuriko" onclick="showSection('imimuriko')">
+      <div class="dash-icon dash-icon-indigo"><i class="ti ti-chart-bar"></i></div>
+      <div><div class="dash-title">IMIMURIKO</div><div class="dash-sub">School-wide performance</div></div>
+      <div class="dash-arrow"><i class="ti ti-arrow-right"></i></div>
+    </div>
+  </div>
+  <div id="section-gutanga" style="display:none;">
+    <div class="section-header">
+      <div class="section-header-icon dash-icon-blue"><i class="ti ti-clipboard-list" style="font-size:15px;color:#185FA5;"></i></div>
+      <span class="section-title-text">GUTANGA IMIMURIKO</span>
+      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+    </div>
+    <div class="igihande-grid" id="ig-grid"></div>
+  </div>
+  <div id="section-imimuriko" style="display:none;">
+    <div class="section-header">
+      <div class="section-header-icon dash-icon-indigo"><i class="ti ti-chart-bar" style="font-size:15px;color:#3C3489;"></i></div>
+      <span class="section-title-text">IMIMURIKO</span>
+      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+    </div>
+    <div class="formula-note">
+      <strong>Score A</strong> = (Present ÷ Total) × 100 &nbsp;·&nbsp;
+      <strong>Score B</strong> = (Abize ÷ Present) × 100 &nbsp;·&nbsp;
+      <strong>Final</strong> = (Score A + Score B) ÷ 2<br>
+      <span style="color:#085041;">⚑ Visitors column is for information only — does not affect any score</span>
+    </div>
+    <div class="imim-box">
+      <div class="imim-school-title"><i class="ti ti-building-community" style="font-size:16px;"></i>All Igihande Combined</div>
+      <div class="imim-school-sub" id="imim-sub-date"></div>
+      <div class="imim-table-wrap">
+        <table class="imim-table">
+          <thead><tr>
+            <th class="left">Category</th><th>Total</th><th>Present (1+7)</th>
+            <th>Abize (7)</th><th class="vis-col">Visitors</th>
+            <th>Score A</th><th>Score B</th><th>Final</th>
+          </tr></thead>
+          <tbody id="imim-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div id="leader-ig-wrap" style="display:none;">
+    <div class="section-header">
+      <div class="section-header-icon dash-icon-blue"><i class="ti ti-clipboard-list" style="font-size:15px;color:#185FA5;"></i></div>
+      <span class="section-title-text">Your Igihande</span>
+    </div>
+    <div class="igihande-grid" id="ig-grid-leader"></div>
+  </div>
+</div>
+
+<!-- ATTENDANCE -->
+<div class="screen" id="screen-attend">
+  <div class="topbar">
+    <div class="topbar-title">
+      <i class="ti ti-users" style="font-size:17px;color:#185FA5;flex-shrink:0;"></i>
+      <span id="attend-title"></span>
+    </div>
+    <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+      <span style="font-size:11px;color:var(--color-text-secondary);" id="attend-date"></span>
+      <button class="btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>Back</button>
+    </div>
+  </div>
+  <div class="tabs" id="cat-tabs"></div>
+  <div class="itsinda-tabs" id="itsinda-tabs"></div>
+  <div class="fix-note"><i class="ti ti-info-circle" style="font-size:14px;"></i><strong>7 = Abize karindwi:</strong> counts as both Present and Abize</div>
+  <div class="cat-stats">
+    <div class="cat-stats-title"><i class="ti ti-chart-bar" style="font-size:13px;"></i><span id="cat-stats-label"></span></div>
+    <div class="cat-stats-row">
+      <div class="cat-stat" id="stat-p1" onclick="highlightStat('stat-p1')"><div class="cat-stat-label">Present (1+7)</div><div class="cat-stat-val" style="color:#185FA5;" id="cs-p1">0</div></div>
+      <div class="cat-stat" id="stat-p7" onclick="highlightStat('stat-p7')"><div class="cat-stat-label">Abize (7)</div><div class="cat-stat-val" style="color:#0F6E56;" id="cs-p7">0</div></div>
+      <div class="cat-stat" id="stat-abs" onclick="highlightStat('stat-abs')"><div class="cat-stat-label">Absent</div><div class="cat-stat-val" style="color:var(--color-text-tertiary);" id="cs-abs">0</div></div>
+      <div class="cat-stat" id="stat-vis" onclick="highlightStat('stat-vis')"><div class="cat-stat-label">Abashyitsi</div><div class="cat-stat-val" style="color:#185FA5;" id="cs-vis">0</div></div>
+    </div>
+  </div>
+  <div class="legend">
+    <div class="legend-item"><div class="legend-box" style="background:var(--color-background-secondary);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);">—</div>Absent</div>
+    <div class="legend-item"><div class="legend-box" style="background:#EBF3FD;color:#185FA5;border:0.5px solid #185FA5;">1</div>Present</div>
+    <div class="legend-item"><div class="legend-box" style="background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5;">7</div>Abize karindwi</div>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="search" placeholder="Search member…" oninput="renderMembers()"/>
+    <button class="btn-add-sm" onclick="openAddMember()"><i class="ti ti-plus" style="font-size:14px;"></i>Add</button>
+  </div>
+  <div class="member-list" id="member-list"></div>
+  <div class="visitors-box" style="margin-top:4px;">
+    <div class="visitors-label"><i class="ti ti-door-enter" style="font-size:17px;"></i>Abashyitsi (Visitors)</div>
+    <div class="visitors-input-wrap">
+      <button class="v-btn" onclick="changeVisitors(-1)">−</button>
+      <input type="number" class="visitors-input" id="visitors-input" value="0" min="0" oninput="syncVisitors()"/>
+      <button class="v-btn" onclick="changeVisitors(1)">+</button>
+    </div>
+  </div>
+  <div class="footer-btns">
+    <button class="btn-save" onclick="saveAttendance()"><i class="ti ti-device-floppy" style="font-size:15px;vertical-align:-2px;margin-right:4px;"></i>Save attendance</button>
+  </div>
+  <div class="toast" id="toast"><i class="ti ti-check" style="font-size:15px;"></i><span id="toast-msg"></span></div>
+</div>
+
+<!-- CREATE ACCOUNT MODAL -->
+<div class="modal-bg" id="modal-account">
+  <div class="modal">
+    <h3>Create new account</h3>
+    <label>Role</label>
+    <div class="role-selector">
+      <div class="role-opt selected" id="role-opt-leader" onclick="selectRole('leader')">
+        <div class="role-opt-icon"><i class="ti ti-user" style="color:#185FA5;"></i></div>
+        <div class="role-opt-title">Leader</div>
+        <div class="role-opt-sub">Manages one Igihande</div>
+      </div>
+      <div class="role-opt" id="role-opt-admin" onclick="selectRole('admin')">
+        <div class="role-opt-icon"><i class="ti ti-shield" style="color:#3C3489;"></i></div>
+        <div class="role-opt-title">Admin</div>
+        <div class="role-opt-sub">Full access to all</div>
+      </div>
+    </div>
+    <label>Full name</label><input type="text" id="a-name" placeholder="e.g. Jean Habimana"/>
+    <label>Username</label><input type="text" id="a-user" placeholder="e.g. jean_habimana"/>
+    <label>Password</label><input type="password" id="a-pass" placeholder="Set password"/>
+    <div class="ig-field" id="ig-field">
+      <label>Assigned Igihande</label>
+      <select id="a-ig"></select>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-account')">Cancel</button>
+      <button class="btn-confirm" onclick="createAccount()">Create account</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD MEMBER MODAL -->
+<div class="modal-bg" id="modal-member">
+  <div class="modal">
+    <h3>Add member</h3>
+    <label>Full name</label><input type="text" id="m-name" placeholder="e.g. Alice Uwimana"/>
+    <label>Category</label>
+    <select id="m-cat"><option>Adults</option><option>Youth</option><option>Teen</option><option>Children</option></select>
+    <label>Itsinda</label>
+    <select id="m-itsinda">
+      <option>Itsinda rya 1</option><option>Itsinda rya 2</option>
+      <option>Itsinda rya 3</option><option>Itsinda rya 4</option><option>Itsinda rya 5</option>
+    </select>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-member')">Cancel</button>
+      <button class="btn-confirm" onclick="addMember()">Add</button>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ═══ SUPABASE CONFIG ═══
+const SUPABASE_URL = 'https://axucjxkqgsykphkglmfx.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4dWNqeGtxZ3N5a3Boa2dsbWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzI2OTEsImV4cCI6MjA5NjU0ODY5MX0.JJPR-aDczk1mmYDZNR_VGny2LjBQncjKJvHQ4bNT9fI';
+
+async function sbGet(table, filters='') {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}`, {
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+  });
+  return r.json();
+}
+async function sbPost(table, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}`, {
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    body:JSON.stringify(data)
+  });
+  return r.json();
+}
+async function sbPatch(table, filters, data) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}`, {
+    method:'PATCH',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'},
+    body:JSON.stringify(data)
+  });
+  return r.json();
+}
+async function sbDelete(table, filters) {
+  await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}`, {
+    method:'DELETE',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY}
+  });
+}
+async function sbUpsert(table, data, onConflict) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?on_conflict=${onConflict}`, {
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=representation'},
+    body:JSON.stringify(data)
+  });
+  return r.json();
+}
+
+// ═══ CONSTANTS ═══
+const CATS = ['Adults','Youth','Teen','Children'];
+const CAT_ICONS = {'Adults':'ti-user','Youth':'ti-users','Teen':'ti-mood-kid','Children':'ti-baby-carriage'};
+const ITSINDAS = ['Itsinda rya 1','Itsinda rya 2','Itsinda rya 3','Itsinda rya 4','Itsinda rya 5'];
+const AVCOLORS = [
+  ['#EBF3FD','#185FA5'],['#E1F5EE','#085041'],['#EEEDFE','#3C3489'],
+  ['#FAEEDA','#633806'],['#FAECE7','#712B13'],['#EAF3DE','#27500A'],['#FBEAF0','#72243E']
+];
+const IGIHANDES = ['Samuduha A','Samuduha B','Cyarugondo A','Cyarugondo B','Kabeza','Cyeru na Gakoni','Busanza'];
+
+// ═══ STATE ═══
+let currentUser = null, currentIg = null, currentCat = 'Adults', currentIt = 'Itsinda rya 1', activeSection = null;
+let selectedRole = 'leader';
+let membersCache = []; // flat array from DB
+let visitorsCache = []; // flat array from DB
+
+// ═══ LOADING ═══
+function showLoading(msg='Loading...') {
+  document.getElementById('loading-text').textContent = msg;
+  document.getElementById('loading-overlay').classList.add('active');
+}
+function hideLoading() {
+  document.getElementById('loading-overlay').classList.remove('active');
+}
+
+// ═══ SABBATH RESET ═══
+function getThisSaturday() {
+  const d = new Date(), day = d.getDay();
+  const sat = new Date(d); sat.setDate(d.getDate() - (day===6?0:day+1)); sat.setHours(0,0,0,0);
+  return sat.toISOString().split('T')[0];
+}
+function getNextSaturday() {
+  const d = new Date(), day = d.getDay();
+  const sat = new Date(d); sat.setDate(d.getDate() + (day===6?7:6-day));
+  return sat.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+}
+async function checkAndReset() {
+  if (new Date().getDay() === 6) return; // Saturday — don't reset
+  const thisSat = getThisSaturday();
+  try {
+    const rows = await sbGet('sabbath_reset','id=eq.1');
+    const lastReset = rows[0]?.last_reset_date || '';
+    if (lastReset !== thisSat) {
+      showLoading('Preparing for new Sabbath...');
+      // Reset all scores to 0
+      await sbPatch('members','score=neq.-1',{score:0});
+      // Reset all visitor counts to 0
+      await sbPatch('visitors','count=neq.-1',{count:0});
+      // Update reset date
+      await sbUpsert('sabbath_reset',{id:1,last_reset_date:thisSat},'id');
+      hideLoading();
+    }
+  } catch(e) { hideLoading(); }
+}
+function showSabbathBanner() {
+  const banner = document.getElementById('sabbath-banner');
+  const day = new Date().getDay();
+  if (day===6) {
+    banner.className='sabbath-banner banner-saturday';
+    banner.innerHTML=`<i class="ti ti-star" style="font-size:16px;"></i><span><strong>Today is Sabbath!</strong> Record today's attendance below.</span>`;
+  } else if (day===0) {
+    banner.className='sabbath-banner banner-reset';
+    banner.innerHTML=`<i class="ti ti-refresh" style="font-size:16px;"></i><span><strong>New week started!</strong> Attendance reset. Next Sabbath: <strong>${getNextSaturday()}</strong></span>`;
+  } else {
+    banner.className='sabbath-banner banner-other';
+    banner.innerHTML=`<i class="ti ti-calendar" style="font-size:16px;"></i><span>Next Sabbath: <strong>${getNextSaturday()}</strong></span>`;
+  }
+}
+
+// ═══ HELPERS ═══
+function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
+function avatarStyle(i){const[bg,fg]=AVCOLORS[i%AVCOLORS.length];return`background:${bg};color:${fg};`;}
+function todayStr(){return new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
+function fmt(n){return Number.isFinite(n)?n.toFixed(1):'0.0';}
+function pillClass(v){if(v>=75)return'pill-high';if(v>=50)return'pill-mid';if(v>0)return'pill-low';return'pill-zero';}
+
+function getMembersList(ig, cat, it) {
+  return membersCache.filter(m => m.igihande===ig && m.category===cat && m.itsinda===it);
+}
+function getVisitorCount(ig, cat, it) {
+  const v = visitorsCache.find(v => v.igihande===ig && v.category===cat && v.itsinda===it);
+  return v ? v.count : 0;
+}
+function countStats(list) {
+  return {
+    present: list.filter(m=>m.score>=1).length,
+    abize:   list.filter(m=>m.score===7).length,
+    absent:  list.filter(m=>m.score===0).length,
+    total:   list.length
+  };
+}
+function combinedVisitors(cat) {
+  let t=0; IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>t+=getVisitorCount(ig,cat,it))); return t;
+}
+function combinedCatStats(cat) {
+  let total=0,present=0,abize=0;
+  IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>{
+    const s=countStats(getMembersList(ig,cat,it));
+    total+=s.total;present+=s.present;abize+=s.abize;
+  }));
+  const scoreA=total===0?0:(present/total)*100;
+  const scoreB=present===0?0:(abize/present)*100;
+  return{total,present,abize,vis:combinedVisitors(cat),scoreA,scoreB,final:(scoreA+scoreB)/2};
+}
+
+// ═══ LOAD DATA FROM SUPABASE ═══
+async function loadAllData() {
+  showLoading('Loading data...');
+  try {
+    const [mems, vis] = await Promise.all([
+      sbGet('members','select=*&order=name'),
+      sbGet('visitors','select=*')
+    ]);
+    membersCache = Array.isArray(mems) ? mems : [];
+    visitorsCache = Array.isArray(vis) ? vis : [];
+  } catch(e) {
+    showToast('Connection error. Check your internet.', 'error');
+  }
+  hideLoading();
+}
+
+// ═══ AUTH ═══
+function togglePw() {
+  const inp=document.getElementById('l-pass'),icon=document.getElementById('eye-icon');
+  inp.type=inp.type==='password'?'text':'password';
+  icon.className=inp.type==='password'?'ti ti-eye':'ti ti-eye-off';
+}
+
+async function doLogin() {
+  const u=document.getElementById('l-user').value.trim();
+  const p=document.getElementById('l-pass').value;
+  showLoading('Signing in...');
+  try {
+    const rows = await sbGet('accounts',`username=eq.${encodeURIComponent(u)}&password=eq.${encodeURIComponent(p)}`);
+    hideLoading();
+    if (!rows || rows.length===0) {
+      document.getElementById('login-err').style.display='block'; return;
+    }
+    document.getElementById('login-err').style.display='none';
+    currentUser = rows[0];
+    await loadAllData();
+    await checkAndReset();
+    showHome();
+  } catch(e) {
+    hideLoading();
+    document.getElementById('login-err').style.display='block';
+    document.getElementById('login-err').textContent='Connection error. Try again.';
+  }
+}
+document.getElementById('l-pass').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('l-user').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('l-pass').focus();});
+
+function signOut() {
+  currentUser=null;currentIg=null;activeSection=null;
+  membersCache=[];visitorsCache=[];
+  document.getElementById('l-user').value='';
+  document.getElementById('l-pass').value='';
+  show('screen-login');
+}
+
+// ═══ HOME ═══
+function showHome() {
+  show('screen-home');
+  showSabbathBanner();
+  document.getElementById('welcome-name').textContent=currentUser.name;
+  const badge=document.getElementById('role-badge');
+  badge.textContent=currentUser.role==='admin'?'Admin':'Leader';
+  badge.className='badge '+(currentUser.role==='admin'?'badge-admin':'badge-leader');
+  if (currentUser.role==='admin') {
+    document.getElementById('home-sub').textContent='Select a dashboard to continue.';
+    document.getElementById('admin-dash-cards').style.display='grid';
+    document.getElementById('section-gutanga').style.display='none';
+    document.getElementById('section-imimuriko').style.display='none';
+    document.getElementById('leader-ig-wrap').style.display='none';
+    document.getElementById('btn-create-acc').style.display='flex';
+    activeSection=null;
+    document.querySelectorAll('.dash-card').forEach(c=>c.classList.remove('active'));
+  } else {
+    document.getElementById('home-sub').textContent='Select your Igihande to record attendance.';
+    document.getElementById('admin-dash-cards').style.display='none';
+    document.getElementById('section-gutanga').style.display='none';
+    document.getElementById('section-imimuriko').style.display='none';
+    document.getElementById('leader-ig-wrap').style.display='block';
+    document.getElementById('btn-create-acc').style.display='none';
+    buildLeaderGrid();
+  }
+}
+
+function showSection(name) {
+  document.getElementById('section-gutanga').style.display='none';
+  document.getElementById('section-imimuriko').style.display='none';
+  document.getElementById('admin-dash-cards').style.display='none';
+  document.querySelectorAll('.dash-card').forEach(c=>c.classList.remove('active'));
+  if (!name) {
+    document.getElementById('admin-dash-cards').style.display='grid';
+    document.getElementById('home-sub').textContent='Select a dashboard to continue.';
+    activeSection=null; return;
+  }
+  activeSection=name;
+  if (name==='gutanga') {
+    document.getElementById('dash-gutanga').classList.add('active');
+    document.getElementById('section-gutanga').style.display='block';
+    document.getElementById('home-sub').textContent='Choose an Igihande to record attendance.';
+    buildGrid();
+  } else {
+    document.getElementById('dash-imimuriko').classList.add('active');
+    document.getElementById('section-imimuriko').style.display='block';
+    document.getElementById('home-sub').textContent='School-wide performance report.';
+    buildImimurikoTable();
+  }
+}
+
+// ═══ IGIHANDE GRIDS ═══
+function totalMembers(ig) {
+  return membersCache.filter(m=>m.igihande===ig).length;
+}
+function buildGrid() {
+  const grid=document.getElementById('ig-grid');grid.innerHTML='';
+  IGIHANDES.forEach((ig,i)=>{
+    const div=document.createElement('div');
+    div.className='ig-card'+(ig===currentIg?' active':'');
+    div.innerHTML=`<div class="ig-dot" style="background:${AVCOLORS[i%AVCOLORS.length][1]};"></div>
+      <div><div class="ig-name">${ig}</div><div class="ig-members">${totalMembers(ig)} members</div></div>
+      <i class="ti ti-chevron-right" style="font-size:16px;color:#185FA5;margin-left:auto;"></i>`;
+    div.onclick=()=>{
+      document.querySelectorAll('#ig-grid .ig-card').forEach(c=>c.classList.remove('active'));
+      div.classList.add('active'); openIgihande(ig);
+    };
+    grid.appendChild(div);
+  });
+}
+function buildLeaderGrid() {
+  const grid=document.getElementById('ig-grid-leader');grid.innerHTML='';
+  const ig=currentUser.igihande;
+  const i=IGIHANDES.indexOf(ig);
+  const div=document.createElement('div');div.className='ig-card';
+  div.innerHTML=`<div class="ig-dot" style="background:${AVCOLORS[Math.max(0,i)%AVCOLORS.length][1]};"></div>
+    <div><div class="ig-name">${ig}</div><div class="ig-members">${totalMembers(ig)} members</div></div>
+    <i class="ti ti-chevron-right" style="font-size:16px;color:#185FA5;margin-left:auto;"></i>`;
+  div.onclick=()=>openIgihande(ig);
+  grid.appendChild(div);
+}
+
+// ═══ ATTENDANCE ═══
+function openIgihande(ig) {
+  currentIg=ig;currentCat='Adults';currentIt='Itsinda rya 1';
+  document.getElementById('attend-title').textContent=ig;
+  document.getElementById('attend-date').textContent=todayStr();
+  document.getElementById('search').value='';
+  show('screen-attend');
+  buildCatTabs();buildItsindaTabs();renderMembers();updateStats();loadVisitors();
+}
+function buildCatTabs() {
+  const tabs=document.getElementById('cat-tabs');tabs.innerHTML='';
+  CATS.forEach(cat=>{
+    const btn=document.createElement('button');
+    btn.className='tab'+(cat===currentCat?' active':'');
+    btn.textContent=cat;
+    btn.onclick=()=>{currentCat=cat;currentIt='Itsinda rya 1';document.getElementById('search').value='';buildCatTabs();buildItsindaTabs();renderMembers();updateStats();loadVisitors();};
+    tabs.appendChild(btn);
+  });
+}
+function buildItsindaTabs() {
+  const tabs=document.getElementById('itsinda-tabs');tabs.innerHTML='';
+  ITSINDAS.forEach(it=>{
+    const count=getMembersList(currentIg,currentCat,it).length;
+    const btn=document.createElement('button');
+    btn.className='it-tab'+(it===currentIt?' active':'');
+    btn.textContent=`${it} (${count})`;
+    btn.onclick=()=>{currentIt=it;document.getElementById('search').value='';buildItsindaTabs();renderMembers();updateStats();loadVisitors();};
+    tabs.appendChild(btn);
+  });
+}
+function highlightStat(id){document.querySelectorAll('.cat-stat').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');}
+function updateStats() {
+  const list=getMembersList(currentIg,currentCat,currentIt);
+  const s=countStats(list);
+  document.getElementById('cat-stats-label').textContent=`${currentCat} · ${currentIt}`;
+  document.getElementById('cs-p1').textContent=s.present;
+  document.getElementById('cs-p7').textContent=s.abize;
+  document.getElementById('cs-abs').textContent=s.absent;
+  document.getElementById('cs-vis').textContent=getVisitorCount(currentIg,currentCat,currentIt);
+}
+function loadVisitors() {
+  const v=getVisitorCount(currentIg,currentCat,currentIt);
+  document.getElementById('visitors-input').value=v;
+  document.getElementById('cs-vis').textContent=v;
+}
+function changeVisitors(delta) {
+  const inp=document.getElementById('visitors-input');
+  const v=Math.max(0,(parseInt(inp.value)||0)+delta);
+  inp.value=v;
+  // update cache
+  const idx=visitorsCache.findIndex(x=>x.igihande===currentIg&&x.category===currentCat&&x.itsinda===currentIt);
+  if(idx>=0) visitorsCache[idx].count=v; else visitorsCache.push({igihande:currentIg,category:currentCat,itsinda:currentIt,count:v});
+  document.getElementById('cs-vis').textContent=v;
+}
+function syncVisitors() {
+  const v=Math.max(0,parseInt(document.getElementById('visitors-input').value)||0);
+  document.getElementById('visitors-input').value=v;
+  const idx=visitorsCache.findIndex(x=>x.igihande===currentIg&&x.category===currentCat&&x.itsinda===currentIt);
+  if(idx>=0) visitorsCache[idx].count=v; else visitorsCache.push({igihande:currentIg,category:currentCat,itsinda:currentIt,count:v});
+  document.getElementById('cs-vis').textContent=v;
+}
+
+function renderMembers() {
+  const q=document.getElementById('search').value.toLowerCase();
+  const src=getMembersList(currentIg,currentCat,currentIt);
+  const list=src.filter(m=>m.name.toLowerCase().includes(q));
+  const el=document.getElementById('member-list');
+  if(!list.length){el.innerHTML='<div class="empty">No members found</div>';return;}
+  el.innerHTML='';
+  list.forEach((m,idx)=>{
+    const s=m.score;
+    const row=document.createElement('div');row.className='member-row';
+    row.innerHTML=`
+      <div class="avatar" style="${avatarStyle(idx)}">${initials(m.name)}</div>
+      <div class="minfo"><div class="mname">${m.name}</div><div class="mcat">${currentCat} · ${currentIt}</div></div>
+      <div class="score-btns">
+        <button class="score-btn${s===0?' s0':''}" data-id="${m.id}" data-val="0">—</button>
+        <button class="score-btn${s===1?' s1':''}" data-id="${m.id}" data-val="1">1</button>
+        <button class="score-btn${s===7?' s7':''}" data-id="${m.id}" data-val="7">7</button>
+      </div>
+      <button class="btn-del" data-id="${m.id}"><i class="ti ti-trash" style="font-size:14px;"></i></button>`;
+    el.appendChild(row);
+  });
+  el.querySelectorAll('.score-btn').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const id=btn.dataset.id;
+      const v=parseInt(btn.dataset.val);
+      // update cache immediately
+      const m=membersCache.find(x=>x.id===id);
+      if(m) m.score=v;
+      renderMembers();updateStats();
+      // save to DB
+      await sbPatch('members',`id=eq.${id}`,{score:v});
+    });
+  });
+  el.querySelectorAll('.btn-del').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const id=btn.dataset.id;
+      const name=membersCache.find(x=>x.id===id)?.name||'Member';
+      // remove from cache
+      membersCache=membersCache.filter(x=>x.id!==id);
+      buildItsindaTabs();renderMembers();updateStats();
+      showToast(name+' removed.');
+      // delete from DB
+      await sbDelete('members',`id=eq.${id}`);
+    });
+  });
+}
+
+// ═══ SAVE ATTENDANCE (visitors) ═══
+async function saveAttendance() {
+  const v=parseInt(document.getElementById('visitors-input').value)||0;
+  showLoading('Saving...');
+  try {
+    await sbUpsert('visitors',{igihande:currentIg,category:currentCat,itsinda:currentIt,count:v},'igihande,category,itsinda');
+    hideLoading();
+    const s=countStats(getMembersList(currentIg,currentCat,currentIt));
+    showToast(`Saved! ${currentCat} · ${currentIt} — Present:${s.present} Abize:${s.abize} Visitors:${v}`);
+  } catch(e) {
+    hideLoading();
+    showToast('Save failed. Check connection.','error');
+  }
+}
+
+// ═══ ADD MEMBER ═══
+function openAddMember(){document.getElementById('modal-member').style.display='flex';document.getElementById('m-name').focus();}
+function closeModal(id){document.getElementById(id).style.display='none';}
+
+async function addMember() {
+  const name=document.getElementById('m-name').value.trim();
+  const cat=document.getElementById('m-cat').value;
+  const it=document.getElementById('m-itsinda').value;
+  if(!name) return;
+  showLoading('Adding member...');
+  try {
+    const rows=await sbPost('members',{igihande:currentIg,category:cat,itsinda:it,name,score:0});
+    if(rows && rows[0]) membersCache.push(rows[0]);
+    closeModal('modal-member');
+    document.getElementById('m-name').value='';
+    if(cat===currentCat&&it===currentIt) renderMembers();
+    buildItsindaTabs();updateStats();
+    hideLoading();
+    showToast(`${name} added to ${cat} · ${it}`);
+  } catch(e) {
+    hideLoading();
+    showToast('Failed to add member.','error');
+  }
+}
+
+// ═══ CREATE ACCOUNT ═══
+function selectRole(role) {
+  selectedRole=role;
+  document.getElementById('role-opt-leader').classList.toggle('selected',role==='leader');
+  document.getElementById('role-opt-admin').classList.toggle('selected',role==='admin');
+  document.getElementById('ig-field').style.display=role==='leader'?'block':'none';
+}
+function openCreateAccount() {
+  document.getElementById('a-ig').innerHTML=IGIHANDES.map(ig=>`<option>${ig}</option>`).join('');
+  selectRole('leader');
+  document.getElementById('modal-account').style.display='flex';
+  document.getElementById('a-name').focus();
+}
+async function createAccount() {
+  const name=document.getElementById('a-name').value.trim();
+  const user=document.getElementById('a-user').value.trim();
+  const pass=document.getElementById('a-pass').value;
+  const ig=selectedRole==='leader'?document.getElementById('a-ig').value:null;
+  if(!name||!user||!pass){showToast('Please fill all fields.','error');return;}
+  showLoading('Creating account...');
+  try {
+    const existing=await sbGet('accounts',`username=eq.${encodeURIComponent(user)}`);
+    if(existing&&existing.length>0){hideLoading();showToast('Username already taken!','error');return;}
+    await sbPost('accounts',{username:user,password:pass,role:selectedRole,name,igihande:ig});
+    closeModal('modal-account');
+    ['a-name','a-user','a-pass'].forEach(id=>document.getElementById(id).value='');
+    hideLoading();
+    showToast(`Account created: ${name} (${selectedRole})`);
+  } catch(e) {
+    hideLoading();
+    showToast('Failed to create account.','error');
+  }
+}
+
+// ═══ IMIMURIKO TABLE ═══
+function buildImimurikoTable() {
+  const tbody=document.getElementById('imim-tbody');tbody.innerHTML='';
+  document.getElementById('imim-sub-date').textContent=`All 7 Igihande · ${todayStr()}`;
+  let gT=0,gP=0,gA=0,gV=0,sA=0,sB=0,sF=0;
+  CATS.forEach(cat=>{
+    const s=combinedCatStats(cat);
+    gT+=s.total;gP+=s.present;gA+=s.abize;gV+=s.vis;sA+=s.scoreA;sB+=s.scoreB;sF+=s.final;
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:13px;color:#185FA5;margin-right:5px;"></i>${cat}</td>
+      <td class="num-cell">${s.total}</td><td class="num-cell">${s.present}</td>
+      <td class="num-cell">${s.abize}</td><td class="num-cell vis-col">${s.vis}</td>
+      <td><span class="score-pill ${pillClass(s.scoreA)}">${fmt(s.scoreA)}%</span></td>
+      <td><span class="score-pill ${pillClass(s.scoreB)}">${fmt(s.scoreB)}%</span></td>
+      <td><span class="score-pill ${pillClass(s.final)}">${fmt(s.final)}%</span></td>`;
+    tbody.appendChild(tr);
+  });
+  const n=CATS.length,ftr=document.createElement('tr');ftr.className='final-row';
+  ftr.innerHTML=`
+    <td class="left">SCHOOL TOTAL</td>
+    <td class="num-cell">${gT}</td><td class="num-cell">${gP}</td>
+    <td class="num-cell">${gA}</td><td class="num-cell vis-col">${gV}</td>
+    <td><span class="score-pill ${pillClass(sA/n)}">${fmt(sA/n)}%</span></td>
+    <td><span class="score-pill ${pillClass(sB/n)}">${fmt(sB/n)}%</span></td>
+    <td><span class="score-pill ${pillClass(sF/n)}">${fmt(sF/n)}%</span></td>`;
+  tbody.appendChild(ftr);
+}
+
+// ═══ UTILS ═══
+function showToast(msg, type='success') {
+  const t=document.getElementById('toast');
+  document.getElementById('toast-msg').textContent=msg;
+  t.className=`toast ${type}`;
+  t.style.display='flex';clearTimeout(t._t);
+  t._t=setTimeout(()=>t.style.display='none',4000);
+}
+function goHome() {
+  show('screen-home');
+  if(currentUser.role==='admin') showSection(activeSection); else buildLeaderGrid();
+}
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
