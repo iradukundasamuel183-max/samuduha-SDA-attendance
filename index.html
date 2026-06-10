@@ -151,6 +151,19 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .role-opt-title{font-size:12px;font-weight:600;color:var(--color-text-primary);}
 .role-opt-sub{font-size:10px;color:var(--color-text-secondary);margin-top:2px;}
 .ig-field{margin-top:10px;}
+.reset-box{background:#fff0f0;border:0.5px solid #d32f2f;border-radius:var(--border-radius-lg);padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:12px;}
+.reset-box-text{flex:1;}
+.reset-box-title{font-size:13px;font-weight:600;color:#d32f2f;margin-bottom:2px;}
+.reset-box-sub{font-size:11px;color:#b71c1c;}
+.btn-reset{background:#d32f2f;color:#fff;border:none;border-radius:var(--border-radius-md);padding:0 16px;height:36px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.btn-reset:hover{background:#b71c1c;}
+.modal-confirm-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);align-items:center;justify-content:center;padding:1rem;z-index:150;}
+.modal-confirm{background:var(--color-background-primary);border-radius:var(--border-radius-lg);padding:1.5rem;width:100%;max-width:300px;text-align:center;}
+.modal-confirm i{font-size:36px;color:#d32f2f;margin-bottom:12px;display:block;}
+.modal-confirm h3{font-size:15px;font-weight:600;color:var(--color-text-primary);margin-bottom:8px;}
+.modal-confirm p{font-size:12px;color:var(--color-text-secondary);margin-bottom:1.25rem;line-height:1.5;}
+.modal-confirm-btns{display:flex;gap:8px;}
+.modal-confirm-btns button{flex:1;height:36px;border-radius:var(--border-radius-md);font-size:13px;font-weight:500;cursor:pointer;border:none;}
 .fix-note{font-size:11px;background:#E1F5EE;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);padding:7px 12px;margin-bottom:10px;color:#085041;display:flex;align-items:center;gap:7px;}
 .imim-box{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:12px;}
 .imim-school-title{font-size:13px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px;display:flex;align-items:center;gap:7px;}
@@ -224,6 +237,15 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);">Welcome, <span id="welcome-name"></span></p>
     <p style="font-size:12px;color:var(--color-text-secondary);" id="home-sub"></p>
   </div>
+  <!-- Admin reset box — visible only to admin -->
+  <div class="reset-box" id="admin-reset-box" style="display:none;">
+    <div class="reset-box-text">
+      <div class="reset-box-title"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:4px;"></i>Reset Attendance</div>
+      <div class="reset-box-sub">Clears all scores and visitor counts for all Igihande. Use after announcing last Sabbath's records.</div>
+    </div>
+    <button class="btn-reset" onclick="openResetConfirm()">Reset now</button>
+  </div>
+
   <div class="dash-grid" id="admin-dash-cards" style="display:none;">
     <div class="dash-card" id="dash-gutanga" onclick="showSection('gutanga')">
       <div class="dash-icon dash-icon-blue"><i class="ti ti-clipboard-list"></i></div>
@@ -251,8 +273,8 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
       <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
     </div>
     <div class="formula-note">
-      <strong>Score A</strong> = (Present ÷ Total) × 100 &nbsp;·&nbsp;
-      <strong>Score B</strong> = (Abize ÷ Present) × 100 &nbsp;·&nbsp;
+      <strong>Score A</strong> = (Abaje ÷ Total) × 100 &nbsp;·&nbsp;
+      <strong>Score B</strong> = (Abize ÷ Abaje) × 100 &nbsp;·&nbsp;
       <strong>Final</strong> = (Score A + Score B) ÷ 2<br>
       <span style="color:#085041;">⚑ Visitors column is for information only — does not affect any score</span>
     </div>
@@ -262,7 +284,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
       <div class="imim-table-wrap">
         <table class="imim-table">
           <thead><tr>
-            <th class="left">Category</th><th>Total</th><th>Present (1+7)</th>
+            <th class="left">Category</th><th>Total</th><th>Abaje (1+7)</th>
             <th>Abize (7)</th><th class="vis-col">Visitors</th>
             <th>Score A</th><th>Score B</th><th>Final</th>
           </tr></thead>
@@ -294,19 +316,19 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
   </div>
   <div class="tabs" id="cat-tabs"></div>
   <div class="itsinda-tabs" id="itsinda-tabs"></div>
-  <div class="fix-note"><i class="ti ti-info-circle" style="font-size:14px;"></i><strong>7 = Abize karindwi:</strong> counts as both Present and Abize</div>
+  <div class="fix-note"><i class="ti ti-info-circle" style="font-size:14px;"></i><strong>7 = Abize karindwi:</strong> counts as both Abaje and Abize</div>
   <div class="cat-stats">
     <div class="cat-stats-title"><i class="ti ti-chart-bar" style="font-size:13px;"></i><span id="cat-stats-label"></span></div>
     <div class="cat-stats-row">
-      <div class="cat-stat" id="stat-p1" onclick="highlightStat('stat-p1')"><div class="cat-stat-label">Present (1+7)</div><div class="cat-stat-val" style="color:#185FA5;" id="cs-p1">0</div></div>
+      <div class="cat-stat" id="stat-p1" onclick="highlightStat('stat-p1')"><div class="cat-stat-label">Abaje (1+7)</div><div class="cat-stat-val" style="color:#185FA5;" id="cs-p1">0</div></div>
       <div class="cat-stat" id="stat-p7" onclick="highlightStat('stat-p7')"><div class="cat-stat-label">Abize (7)</div><div class="cat-stat-val" style="color:#0F6E56;" id="cs-p7">0</div></div>
-      <div class="cat-stat" id="stat-abs" onclick="highlightStat('stat-abs')"><div class="cat-stat-label">Absent</div><div class="cat-stat-val" style="color:var(--color-text-tertiary);" id="cs-abs">0</div></div>
+      <div class="cat-stat" id="stat-abs" onclick="highlightStat('stat-abs')"><div class="cat-stat-label">Abasibye</div><div class="cat-stat-val" style="color:var(--color-text-tertiary);" id="cs-abs">0</div></div>
       <div class="cat-stat" id="stat-vis" onclick="highlightStat('stat-vis')"><div class="cat-stat-label">Abashyitsi</div><div class="cat-stat-val" style="color:#185FA5;" id="cs-vis">0</div></div>
     </div>
   </div>
   <div class="legend">
-    <div class="legend-item"><div class="legend-box" style="background:var(--color-background-secondary);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);">—</div>Absent</div>
-    <div class="legend-item"><div class="legend-box" style="background:#EBF3FD;color:#185FA5;border:0.5px solid #185FA5;">1</div>Present</div>
+    <div class="legend-item"><div class="legend-box" style="background:var(--color-background-secondary);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);">—</div>Abasibye</div>
+    <div class="legend-item"><div class="legend-box" style="background:#EBF3FD;color:#185FA5;border:0.5px solid #185FA5;">1</div>Abaje</div>
     <div class="legend-item"><div class="legend-box" style="background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5;">7</div>Abize karindwi</div>
   </div>
   <div class="toolbar">
@@ -365,7 +387,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <h3>Add member</h3>
     <label>Full name</label><input type="text" id="m-name" placeholder="e.g. Alice Uwimana"/>
     <label>Category</label>
-    <select id="m-cat"><option>Adults</option><option>Youth</option><option>Teen</option><option>Children</option></select>
+    <select id="m-cat"><option>Abakuze</option><option>Abasore</option><option>Ingimbi</option><option>Abana</option></select>
     <label>Itsinda</label>
     <select id="m-itsinda">
       <option>Itsinda rya 1</option><option>Itsinda rya 2</option>
@@ -374,6 +396,19 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-member')">Cancel</button>
       <button class="btn-confirm" onclick="addMember()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESET CONFIRM MODAL -->
+<div class="modal-confirm-bg" id="modal-reset-confirm">
+  <div class="modal-confirm">
+    <i class="ti ti-alert-triangle"></i>
+    <h3>Reset all attendance?</h3>
+    <p>This will clear ALL scores and visitor counts for all 7 Igihande. This cannot be undone. Only do this after announcing last Sabbath's records.</p>
+    <div class="modal-confirm-btns">
+      <button style="background:var(--color-background-secondary);color:var(--color-text-primary);border:none;" onclick="closeResetConfirm()">Cancel</button>
+      <button style="background:#d32f2f;color:#fff;border:none;" onclick="doManualReset()">Yes, reset</button>
     </div>
   </div>
 </div>
@@ -423,8 +458,8 @@ async function sbUpsert(table, data, onConflict) {
 }
 
 // ═══ CONSTANTS ═══
-const CATS = ['Adults','Youth','Teen','Children'];
-const CAT_ICONS = {'Adults':'ti-user','Youth':'ti-users','Teen':'ti-mood-kid','Children':'ti-baby-carriage'};
+const CATS = ['Abakuze','Abasore','Ingimbi','Abana'];
+const CAT_ICONS = {'Abakuze':'ti-user','Abasore':'ti-users','Ingimbi':'ti-mood-kid','Abana':'ti-baby-carriage'};
 const ITSINDAS = ['Itsinda rya 1','Itsinda rya 2','Itsinda rya 3','Itsinda rya 4','Itsinda rya 5'];
 const AVCOLORS = [
   ['#EBF3FD','#185FA5'],['#E1F5EE','#085041'],['#EEEDFE','#3C3489'],
@@ -433,7 +468,7 @@ const AVCOLORS = [
 const IGIHANDES = ['Samuduha A','Samuduha B','Cyarugondo A','Cyarugondo B','Kabeza','Cyeru na Gakoni','Busanza'];
 
 // ═══ STATE ═══
-let currentUser = null, currentIg = null, currentCat = 'Adults', currentIt = 'Itsinda rya 1', activeSection = null;
+let currentUser = null, currentIg = null, currentCat = 'Abakuze', currentIt = 'Itsinda rya 1', activeSection = null;
 let selectedRole = 'leader';
 let membersCache = []; // flat array from DB
 let visitorsCache = []; // flat array from DB
@@ -447,7 +482,30 @@ function hideLoading() {
   document.getElementById('loading-overlay').classList.remove('active');
 }
 
-// ═══ SABBATH RESET ═══
+// ═══ MANUAL RESET ═══
+function openResetConfirm() {
+  document.getElementById('modal-reset-confirm').style.display = 'flex';
+}
+function closeResetConfirm() {
+  document.getElementById('modal-reset-confirm').style.display = 'none';
+}
+async function doManualReset() {
+  closeResetConfirm();
+  showLoading('Resetting all attendance...');
+  try {
+    await sbPatch('members','score=neq.-1',{score:0});
+    await sbPatch('visitors','count=neq.-1',{count:0});
+    // reload cache
+    await loadAllData();
+    hideLoading();
+    showToast('All attendance has been reset successfully!');
+  } catch(e) {
+    hideLoading();
+    showToast('Reset failed. Check connection.','error');
+  }
+}
+
+
 function getThisSaturday() {
   const d = new Date(), day = d.getDay();
   const sat = new Date(d); sat.setDate(d.getDate() - (day===6?0:day+1)); sat.setHours(0,0,0,0);
@@ -563,7 +621,6 @@ async function doLogin() {
     document.getElementById('login-err').style.display='none';
     currentUser = rows[0];
     await loadAllData();
-    await checkAndReset();
     showHome();
   } catch(e) {
     hideLoading();
@@ -597,6 +654,7 @@ function showHome() {
     document.getElementById('section-imimuriko').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='none';
     document.getElementById('btn-create-acc').style.display='flex';
+    document.getElementById('admin-reset-box').style.display='flex';
     activeSection=null;
     document.querySelectorAll('.dash-card').forEach(c=>c.classList.remove('active'));
   } else {
@@ -606,6 +664,7 @@ function showHome() {
     document.getElementById('section-imimuriko').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='block';
     document.getElementById('btn-create-acc').style.display='none';
+    document.getElementById('admin-reset-box').style.display='none';
     buildLeaderGrid();
   }
 }
@@ -667,7 +726,7 @@ function buildLeaderGrid() {
 
 // ═══ ATTENDANCE ═══
 function openIgihande(ig) {
-  currentIg=ig;currentCat='Adults';currentIt='Itsinda rya 1';
+  currentIg=ig;currentCat='Abakuze';currentIt='Itsinda rya 1';
   document.getElementById('attend-title').textContent=ig;
   document.getElementById('attend-date').textContent=todayStr();
   document.getElementById('search').value='';
@@ -782,7 +841,7 @@ async function saveAttendance() {
     await sbUpsert('visitors',{igihande:currentIg,category:currentCat,itsinda:currentIt,count:v},'igihande,category,itsinda');
     hideLoading();
     const s=countStats(getMembersList(currentIg,currentCat,currentIt));
-    showToast(`Saved! ${currentCat} · ${currentIt} — Present:${s.present} Abize:${s.abize} Visitors:${v}`);
+    showToast(`Saved! ${currentCat} · ${currentIt} — Abaje:${s.present} Abize:${s.abize} Visitors:${v}`);
   } catch(e) {
     hideLoading();
     showToast('Save failed. Check connection.','error');
