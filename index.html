@@ -186,6 +186,24 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .pill-low{background:#FAEEDA;color:#633806;}
 .pill-zero{background:var(--color-background-secondary);color:var(--color-text-tertiary);}
 .num-cell{font-size:14px;font-weight:500;color:var(--color-text-primary);}
+/* IMIMURIKO drill-down */
+.imim-table tbody tr.cat-row{cursor:pointer;}
+.imim-table tbody tr.cat-row td.left{color:#185FA5;}
+.imim-table tbody tr.cat-row:hover td{background:#EBF3FD;}
+.imim-table tbody tr.cat-row.expanded td{background:#EBF3FD;border-bottom:none;}
+.drill-row{display:none;}
+.drill-row.open{display:table-row;}
+.drill-row td{padding:0!important;border-bottom:0.5px solid var(--color-border-tertiary);}
+.drill-inner{background:var(--color-background-secondary);padding:8px 6px;}
+.drill-table{width:100%;border-collapse:collapse;font-size:11px;}
+.drill-table th{background:#3C6EA0;color:#fff;padding:6px 8px;text-align:center;font-weight:600;white-space:nowrap;}
+.drill-table th.left{text-align:left;}
+.drill-table td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);text-align:center;color:var(--color-text-primary);}
+.drill-table td.left{text-align:left;font-weight:500;}
+.drill-table tr:last-child td{border-bottom:none;}
+.drill-table tr:hover td{background:#EBF3FD;}
+.expand-icon{font-size:12px;margin-left:6px;color:#185FA5;transition:transform .2s;display:inline-block;}
+.expanded .expand-icon{transform:rotate(90deg);}
 </style>
 </head>
 <body>
@@ -385,14 +403,11 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 <div class="modal-bg" id="modal-member">
   <div class="modal">
     <h3>Add member</h3>
+    <div id="m-context" style="font-size:12px;color:#185FA5;background:#EBF3FD;border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
+      <i class="ti ti-map-pin" style="font-size:14px;"></i>
+      <span id="m-context-text"></span>
+    </div>
     <label>Full name</label><input type="text" id="m-name" placeholder="e.g. Alice Uwimana"/>
-    <label>Category</label>
-    <select id="m-cat"><option>Abakuze</option><option>Abasore</option><option>Ingimbi</option><option>Abana</option></select>
-    <label>Itsinda</label>
-    <select id="m-itsinda">
-      <option>Itsinda rya 1</option><option>Itsinda rya 2</option>
-      <option>Itsinda rya 3</option><option>Itsinda rya 4</option><option>Itsinda rya 5</option>
-    </select>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-member')">Cancel</button>
       <button class="btn-confirm" onclick="addMember()">Add</button>
@@ -849,13 +864,18 @@ async function saveAttendance() {
 }
 
 // ═══ ADD MEMBER ═══
-function openAddMember(){document.getElementById('modal-member').style.display='flex';document.getElementById('m-name').focus();}
+function openAddMember(){
+  document.getElementById('m-context-text').textContent=`${currentIg} · ${currentCat} · ${currentIt}`;
+  document.getElementById('modal-member').style.display='flex';
+  document.getElementById('m-name').focus();
+}
 function closeModal(id){document.getElementById(id).style.display='none';}
 
 async function addMember() {
   const name=document.getElementById('m-name').value.trim();
-  const cat=document.getElementById('m-cat').value;
-  const it=document.getElementById('m-itsinda').value;
+  // Always use current location — no dropdowns needed
+  const cat=currentCat;
+  const it=currentIt;
   if(!name) return;
   showLoading('Adding member...');
   try {
@@ -863,7 +883,7 @@ async function addMember() {
     if(rows && rows[0]) membersCache.push(rows[0]);
     closeModal('modal-member');
     document.getElementById('m-name').value='';
-    if(cat===currentCat&&it===currentIt) renderMembers();
+    renderMembers();
     buildItsindaTabs();updateStats();
     hideLoading();
     showToast(`${name} added to ${cat} · ${it}`);
@@ -908,23 +928,85 @@ async function createAccount() {
 }
 
 // ═══ IMIMURIKO TABLE ═══
+function igCatStats(ig, cat) {
+  let total=0,present=0,abize=0;
+  ITSINDAS.forEach(it=>{
+    const s=countStats(getMembersList(ig,cat,it));
+    total+=s.total;present+=s.present;abize+=s.abize;
+  });
+  const scoreA=total===0?0:(present/total)*100;
+  const scoreB=present===0?0:(abize/present)*100;
+  const vis=ITSINDAS.reduce((a,it)=>a+getVisitorCount(ig,cat,it),0);
+  return{total,present,abize,vis,scoreA,scoreB,final:(scoreA+scoreB)/2};
+}
+
 function buildImimurikoTable() {
   const tbody=document.getElementById('imim-tbody');tbody.innerHTML='';
   document.getElementById('imim-sub-date').textContent=`All 7 Igihande · ${todayStr()}`;
   let gT=0,gP=0,gA=0,gV=0,sA=0,sB=0,sF=0;
-  CATS.forEach(cat=>{
+
+  CATS.forEach((cat,ci)=>{
     const s=combinedCatStats(cat);
     gT+=s.total;gP+=s.present;gA+=s.abize;gV+=s.vis;sA+=s.scoreA;sB+=s.scoreB;sF+=s.final;
+
+    // Main category row — clickable
     const tr=document.createElement('tr');
+    tr.className='cat-row';
+    tr.id=`cat-row-${ci}`;
     tr.innerHTML=`
-      <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:13px;color:#185FA5;margin-right:5px;"></i>${cat}</td>
+      <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:13px;color:#185FA5;margin-right:5px;"></i>${cat}<span class="expand-icon">›</span></td>
       <td class="num-cell">${s.total}</td><td class="num-cell">${s.present}</td>
       <td class="num-cell">${s.abize}</td><td class="num-cell vis-col">${s.vis}</td>
       <td><span class="score-pill ${pillClass(s.scoreA)}">${fmt(s.scoreA)}%</span></td>
       <td><span class="score-pill ${pillClass(s.scoreB)}">${fmt(s.scoreB)}%</span></td>
       <td><span class="score-pill ${pillClass(s.final)}">${fmt(s.final)}%</span></td>`;
     tbody.appendChild(tr);
+
+    // Drill-down row — hidden until clicked
+    const drillTr=document.createElement('tr');
+    drillTr.className='drill-row';
+    drillTr.id=`drill-row-${ci}`;
+
+    // Build per-igihande rows for this category
+    let igRows='';
+    IGIHANDES.forEach((ig,ii)=>{
+      const gs=igCatStats(ig,cat);
+      igRows+=`<tr>
+        <td class="left" style="padding-left:12px;">
+          <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${AVCOLORS[ii%AVCOLORS.length][1]};margin-right:6px;vertical-align:middle;"></span>${ig}
+        </td>
+        <td>${gs.total}</td><td>${gs.present}</td><td>${gs.abize}</td><td style="color:#185FA5;font-weight:500;">${gs.vis}</td>
+        <td><span class="score-pill ${pillClass(gs.scoreA)}">${fmt(gs.scoreA)}%</span></td>
+        <td><span class="score-pill ${pillClass(gs.scoreB)}">${fmt(gs.scoreB)}%</span></td>
+        <td><span class="score-pill ${pillClass(gs.final)}">${fmt(gs.final)}%</span></td>
+      </tr>`;
+    });
+
+    drillTr.innerHTML=`<td colspan="8" style="padding:0;border-bottom:0.5px solid var(--color-border-tertiary);">
+      <div class="drill-inner">
+        <table class="drill-table">
+          <thead><tr>
+            <th class="left">Igihande</th><th>Total</th><th>Abaje</th><th>Abize(7)</th><th>Visitors</th><th>Score A</th><th>Score B</th><th>Final</th>
+          </tr></thead>
+          <tbody>${igRows}</tbody>
+        </table>
+      </div>
+    </td>`;
+    tbody.appendChild(drillTr);
+
+    // Toggle expand on click
+    tr.addEventListener('click',()=>{
+      const isOpen=drillTr.classList.contains('open');
+      // close all others
+      document.querySelectorAll('.drill-row').forEach(r=>r.classList.remove('open'));
+      document.querySelectorAll('.cat-row').forEach(r=>r.classList.remove('expanded'));
+      if(!isOpen){
+        drillTr.classList.add('open');
+        tr.classList.add('expanded');
+      }
+    });
   });
+
   const n=CATS.length,ftr=document.createElement('tr');ftr.className='final-row';
   ftr.innerHTML=`
     <td class="left">SCHOOL TOTAL</td>
