@@ -186,6 +186,20 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .pill-low{background:#FAEEDA;color:#633806;}
 .pill-zero{background:var(--color-background-secondary);color:var(--color-text-tertiary);}
 .num-cell{font-size:14px;font-weight:500;color:var(--color-text-primary);}
+/* History section */
+.dash-icon-green{background:#E1F5EE;color:#085041;}
+.history-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
+.history-toolbar select{font-size:13px;height:34px;flex:1;min-width:120px;}
+.btn-save-history{height:34px;padding:0 14px;font-size:13px;background:#085041;color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+.btn-save-history:hover{background:#063328;}
+.history-empty{text-align:center;padding:2rem;font-size:13px;color:var(--color-text-tertiary);}
+.sabbath-record{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:12px;overflow:hidden;}
+.sabbath-record-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);}
+.sabbath-record-date{font-size:13px;font-weight:600;color:var(--color-text-primary);display:flex;align-items:center;gap:7px;}
+.sabbath-record-badge{font-size:10px;background:#E1F5EE;color:#085041;padding:2px 8px;border-radius:10px;font-weight:500;}
+.btn-del-record{background:none;border:none;cursor:pointer;color:var(--color-text-tertiary);padding:3px;height:auto;border-radius:var(--border-radius-md);}
+.btn-del-record:hover{color:#d32f2f;background:var(--color-background-danger);}
+.month-header{font-size:12px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.05em;padding:8px 0 6px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 /* IMIMURIKO drill-down */
 .imim-table tbody tr.cat-row{cursor:pointer;}
 .imim-table tbody tr.cat-row td.left{color:#185FA5;}
@@ -275,6 +289,11 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
       <div><div class="dash-title">IMIMURIKO</div><div class="dash-sub">School-wide performance</div></div>
       <div class="dash-arrow"><i class="ti ti-arrow-right"></i></div>
     </div>
+    <div class="dash-card" id="dash-igihembwe" onclick="showSection('igihembwe')" style="grid-column:1/-1;">
+      <div class="dash-icon dash-icon-green"><i class="ti ti-calendar-stats"></i></div>
+      <div><div class="dash-title">IMIMURIKO Y'IGIHEMBWE</div><div class="dash-sub">Past Sabbath attendance history by month</div></div>
+      <div class="dash-arrow"><i class="ti ti-arrow-right"></i></div>
+    </div>
   </div>
   <div id="section-gutanga" style="display:none;">
     <div class="section-header">
@@ -317,6 +336,27 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
       <span class="section-title-text">Your Igihande</span>
     </div>
     <div class="igihande-grid" id="ig-grid-leader"></div>
+  </div>
+
+  <!-- IMIMURIKO Y'IGIHEMBWE SECTION -->
+  <div id="section-igihembwe" style="display:none;">
+    <div class="section-header">
+      <div class="section-header-icon dash-icon-green"><i class="ti ti-calendar-stats" style="font-size:15px;color:#085041;"></i></div>
+      <span class="section-title-text">IMIMURIKO Y'IGIHEMBWE</span>
+      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+    </div>
+
+    <!-- Save to history + month filter -->
+    <div class="history-toolbar">
+      <button class="btn-save-history" onclick="saveToHistory()">
+        <i class="ti ti-device-floppy" style="font-size:14px;"></i>Save current Sabbath to history
+      </button>
+      <select id="history-month-filter" onchange="renderHistory()">
+        <option value="">All months</option>
+      </select>
+    </div>
+
+    <div id="history-content"></div>
   </div>
 </div>
 
@@ -667,6 +707,7 @@ function showHome() {
     document.getElementById('admin-dash-cards').style.display='grid';
     document.getElementById('section-gutanga').style.display='none';
     document.getElementById('section-imimuriko').style.display='none';
+    document.getElementById('section-igihembwe').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='none';
     document.getElementById('btn-create-acc').style.display='flex';
     document.getElementById('admin-reset-box').style.display='flex';
@@ -687,6 +728,7 @@ function showHome() {
 function showSection(name) {
   document.getElementById('section-gutanga').style.display='none';
   document.getElementById('section-imimuriko').style.display='none';
+  document.getElementById('section-igihembwe').style.display='none';
   document.getElementById('admin-dash-cards').style.display='none';
   document.querySelectorAll('.dash-card').forEach(c=>c.classList.remove('active'));
   if (!name) {
@@ -700,11 +742,16 @@ function showSection(name) {
     document.getElementById('section-gutanga').style.display='block';
     document.getElementById('home-sub').textContent='Choose an Igihande to record attendance.';
     buildGrid();
-  } else {
+  } else if (name==='imimuriko') {
     document.getElementById('dash-imimuriko').classList.add('active');
     document.getElementById('section-imimuriko').style.display='block';
     document.getElementById('home-sub').textContent='School-wide performance report.';
     buildImimurikoTable();
+  } else if (name==='igihembwe') {
+    document.getElementById('dash-igihembwe').classList.add('active');
+    document.getElementById('section-igihembwe').style.display='block';
+    document.getElementById('home-sub').textContent='Past Sabbath attendance history.';
+    loadAndRenderHistory();
   }
 }
 
@@ -1018,7 +1065,170 @@ function buildImimurikoTable() {
   tbody.appendChild(ftr);
 }
 
-// ═══ UTILS ═══
+// ═══ IMIMURIKO Y'IGIHEMBWE (HISTORY) ═══
+let historyCache = [];
+
+async function loadAndRenderHistory() {
+  showLoading('Loading history...');
+  try {
+    const rows = await sbGet('sabbath_history','select=*&order=sabbath_date.desc');
+    historyCache = Array.isArray(rows) ? rows : [];
+    buildMonthFilter();
+    renderHistory();
+  } catch(e) {
+    showToast('Failed to load history.','error');
+  }
+  hideLoading();
+}
+
+function buildMonthFilter() {
+  const sel = document.getElementById('history-month-filter');
+  const months = [...new Set(historyCache.map(r => r.sabbath_date.slice(0,7)))];
+  sel.innerHTML = '<option value="">All months</option>' +
+    months.map(m => {
+      const [y,mo] = m.split('-');
+      const label = new Date(y, mo-1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+      return `<option value="${m}">${label}</option>`;
+    }).join('');
+}
+
+function renderHistory() {
+  const filter = document.getElementById('history-month-filter').value;
+  const el = document.getElementById('history-content');
+  let records = historyCache;
+  if (filter) records = records.filter(r => r.sabbath_date.startsWith(filter));
+
+  if (!records.length) {
+    el.innerHTML = `<div class="history-empty"><i class="ti ti-calendar-off" style="font-size:32px;display:block;margin-bottom:8px;color:var(--color-text-tertiary);"></i>No records yet.<br>Save current Sabbath attendance to start building history.</div>`;
+    return;
+  }
+
+  // Group by month
+  const grouped = {};
+  records.forEach(r => {
+    const month = r.sabbath_date.slice(0,7);
+    if (!grouped[month]) grouped[month] = [];
+    grouped[month].push(r);
+  });
+
+  el.innerHTML = '';
+  Object.keys(grouped).sort().reverse().forEach(month => {
+    const [y,mo] = month.split('-');
+    const monthLabel = new Date(y, mo-1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+
+    const mHeader = document.createElement('div');
+    mHeader.className = 'month-header';
+    mHeader.innerHTML = `<i class="ti ti-calendar" style="font-size:14px;"></i>${monthLabel} — ${grouped[month].length} Sabbath${grouped[month].length>1?'s':''}`;
+    el.appendChild(mHeader);
+
+    grouped[month].forEach(record => {
+      const data = typeof record.data === 'string' ? JSON.parse(record.data) : record.data;
+      const dateLabel = new Date(record.sabbath_date + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+      const box = document.createElement('div');
+      box.className = 'sabbath-record';
+
+      // Build table rows
+      let rows = '';
+      let gT=0,gP=0,gA=0,gV=0,sA=0,sB=0,sF=0;
+      CATS.forEach(cat => {
+        const s = data[cat] || {total:0,present:0,abize:0,vis:0,scoreA:0,scoreB:0,final:0};
+        gT+=s.total;gP+=s.present;gA+=s.abize;gV+=(s.vis||0);
+        sA+=s.scoreA;sB+=s.scoreB;sF+=s.final;
+        rows += `<tr>
+          <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:12px;color:#185FA5;margin-right:4px;"></i>${cat}</td>
+          <td>${s.total}</td><td>${s.present}</td><td>${s.abize}</td>
+          <td style="color:#185FA5;font-weight:500;">${s.vis||0}</td>
+          <td><span class="score-pill ${pillClass(s.scoreA)}">${fmt(s.scoreA)}%</span></td>
+          <td><span class="score-pill ${pillClass(s.scoreB)}">${fmt(s.scoreB)}%</span></td>
+          <td><span class="score-pill ${pillClass(s.final)}">${fmt(s.final)}%</span></td>
+        </tr>`;
+      });
+      const n=CATS.length;
+      rows += `<tr style="background:#EBF3FD;font-weight:700;color:#185FA5;border-top:1.5px solid #185FA5;">
+        <td class="left">TOTAL</td>
+        <td>${gT}</td><td>${gP}</td><td>${gA}</td><td style="color:#185FA5;">${gV}</td>
+        <td><span class="score-pill ${pillClass(sA/n)}">${fmt(sA/n)}%</span></td>
+        <td><span class="score-pill ${pillClass(sB/n)}">${fmt(sB/n)}%</span></td>
+        <td><span class="score-pill ${pillClass(sF/n)}">${fmt(sF/n)}%</span></td>
+      </tr>`;
+
+      box.innerHTML = `
+        <div class="sabbath-record-header">
+          <div class="sabbath-record-date">
+            <i class="ti ti-calendar-event" style="font-size:15px;color:#085041;"></i>
+            ${dateLabel}
+            <span class="sabbath-record-badge">Sabbath</span>
+          </div>
+          <button class="btn-del-record" data-id="${record.id}" title="Delete this record">
+            <i class="ti ti-trash" style="font-size:14px;"></i>
+          </button>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="imim-table">
+            <thead><tr>
+              <th class="left">Category</th><th>Total</th><th>Abaje</th><th>Abize(7)</th>
+              <th class="vis-col">Visitors</th><th>Score A</th><th>Score B</th><th>Final</th>
+            </tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+        </div>`;
+      el.appendChild(box);
+
+      box.querySelector('.btn-del-record').addEventListener('click', async () => {
+        if (!confirm('Delete this Sabbath record?')) return;
+        showLoading('Deleting...');
+        await sbDelete('sabbath_history', `id=eq.${record.id}`);
+        historyCache = historyCache.filter(r => r.id !== record.id);
+        buildMonthFilter();
+        renderHistory();
+        hideLoading();
+        showToast('Record deleted.');
+      });
+    });
+  });
+}
+
+async function saveToHistory() {
+  // Snapshot current combined stats for all categories
+  const snapshot = {};
+  CATS.forEach(cat => {
+    snapshot[cat] = combinedCatStats(cat);
+  });
+
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+
+  // Check if a record for today already exists
+  const existing = historyCache.find(r => r.sabbath_date === dateStr);
+  if (existing) {
+    if (!confirm(`A record for today (${dateStr}) already exists. Replace it?`)) return;
+    showLoading('Updating history...');
+    await sbPatch('sabbath_history', `id=eq.${existing.id}`, {data: JSON.stringify(snapshot)});
+    existing.data = snapshot;
+    hideLoading();
+    showToast('History updated for today!');
+    return;
+  }
+
+  showLoading('Saving to history...');
+  try {
+    const rows = await sbPost('sabbath_history', {
+      sabbath_date: dateStr,
+      data: JSON.stringify(snapshot)
+    });
+    if (rows && rows[0]) historyCache.unshift(rows[0]);
+    buildMonthFilter();
+    renderHistory();
+    hideLoading();
+    showToast('Sabbath attendance saved to history! ✓ You can now reset.');
+  } catch(e) {
+    hideLoading();
+    showToast('Failed to save history. Check connection.','error');
+  }
+}
+
+
 function showToast(msg, type='success') {
   const t=document.getElementById('toast');
   document.getElementById('toast-msg').textContent=msg;
