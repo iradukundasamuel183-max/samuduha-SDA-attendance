@@ -229,6 +229,11 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
   <div class="loading-text" id="loading-text">Loading...</div>
 </div>
 
+<!-- Global toast — works on all screens -->
+<div id="global-toast" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:300;border-radius:var(--border-radius-md);padding:10px 18px;font-size:13px;font-weight:500;align-items:center;gap:8px;min-width:240px;max-width:90%;text-align:center;box-shadow:0 4px 16px rgba(0,0,0,.2);">
+  <span id="global-toast-msg"></span>
+</div>
+
 <!-- LOGIN -->
 <div class="screen active" id="screen-login">
   <div style="max-width:340px;margin:2rem auto;">
@@ -1190,51 +1195,79 @@ function renderHistory() {
 }
 
 async function saveToHistory() {
-  // Snapshot current combined stats for all categories
   const snapshot = {};
   CATS.forEach(cat => {
     snapshot[cat] = combinedCatStats(cat);
   });
 
   const today = new Date();
-  const dateStr = today.toISOString().split('T')[0]; // YYYY-MM-DD
+  const dateStr = today.toISOString().split('T')[0];
 
-  // Check if a record for today already exists
   const existing = historyCache.find(r => r.sabbath_date === dateStr);
   if (existing) {
     if (!confirm(`A record for today (${dateStr}) already exists. Replace it?`)) return;
     showLoading('Updating history...');
-    await sbPatch('sabbath_history', `id=eq.${existing.id}`, {data: JSON.stringify(snapshot)});
-    existing.data = snapshot;
-    hideLoading();
-    showToast('History updated for today!');
+    try {
+      await sbPatch('sabbath_history', `id=eq.${existing.id}`, {data: JSON.stringify(snapshot)});
+      existing.data = snapshot;
+      hideLoading();
+      showToast('History updated for today! ✓');
+    } catch(e) {
+      hideLoading();
+      showToast('Update failed: ' + e.message, 'error');
+    }
     return;
   }
 
   showLoading('Saving to history...');
   try {
-    const rows = await sbPost('sabbath_history', {
-      sabbath_date: dateStr,
-      data: JSON.stringify(snapshot)
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/sabbath_history`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        sabbath_date: dateStr,
+        data: JSON.stringify(snapshot)
+      })
     });
-    if (rows && rows[0]) historyCache.unshift(rows[0]);
+    const result = await response.json();
+    hideLoading();
+    if (!response.ok) {
+      showToast('Failed: ' + (result.message || result.error || JSON.stringify(result)), 'error');
+      return;
+    }
+    if (result && result[0]) historyCache.unshift(result[0]);
     buildMonthFilter();
     renderHistory();
-    hideLoading();
     showToast('Sabbath attendance saved to history! ✓ You can now reset.');
   } catch(e) {
     hideLoading();
-    showToast('Failed to save history. Check connection.','error');
+    showToast('Network error: ' + e.message, 'error');
   }
 }
 
 
 function showToast(msg, type='success') {
+  // Update local toast if visible (attendance screen)
   const t=document.getElementById('toast');
-  document.getElementById('toast-msg').textContent=msg;
-  t.className=`toast ${type}`;
-  t.style.display='flex';clearTimeout(t._t);
-  t._t=setTimeout(()=>t.style.display='none',4000);
+  if(t){
+    document.getElementById('toast-msg').textContent=msg;
+    t.className=`toast ${type}`;
+    t.style.display='flex';clearTimeout(t._t);
+    t._t=setTimeout(()=>t.style.display='none',4000);
+  }
+  // Always show global toast
+  const gt=document.getElementById('global-toast');
+  document.getElementById('global-toast-msg').textContent=msg;
+  gt.style.display='flex';
+  gt.style.background=type==='error'?'#d32f2f':'#185FA5';
+  gt.style.color='#fff';
+  clearTimeout(gt._t);
+  gt._t=setTimeout(()=>gt.style.display='none',4000);
 }
 function goHome() {
   show('screen-home');
