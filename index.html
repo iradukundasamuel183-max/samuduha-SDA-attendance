@@ -1126,58 +1126,28 @@ function renderHistory() {
     mHeader.innerHTML = `<i class="ti ti-calendar" style="font-size:14px;"></i>${monthLabel} — ${grouped[month].length} Sabbath${grouped[month].length>1?'s':''}`;
     el.appendChild(mHeader);
 
-    grouped[month].forEach((record, recIdx) => {
+    grouped[month].forEach(record => {
       const data = typeof record.data === 'string' ? JSON.parse(record.data) : record.data;
       const dateLabel = new Date(record.sabbath_date + 'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-      const recId = `hist-${month}-${recIdx}`;
 
       const box = document.createElement('div');
       box.className = 'sabbath-record';
 
-      // Build table rows — each category row is clickable if byIgihande data exists
+      // Build table rows
       let rows = '';
       let gT=0,gP=0,gA=0,gV=0,sA=0,sB=0,sF=0;
-      CATS.forEach((cat,ci) => {
+      CATS.forEach(cat => {
         const s = data[cat] || {total:0,present:0,abize:0,vis:0,scoreA:0,scoreB:0,final:0};
         gT+=s.total;gP+=s.present;gA+=s.abize;gV+=(s.vis||0);
         sA+=s.scoreA;sB+=s.scoreB;sF+=s.final;
-        const hasBreakdown = s.byIgihande && Object.keys(s.byIgihande).length>0;
-        rows += `<tr class="${hasBreakdown?'cat-row':''}" id="${recId}-cat-${ci}">
-          <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:12px;color:#185FA5;margin-right:4px;"></i>${cat}${hasBreakdown?'<span class="expand-icon">›</span>':''}</td>
+        rows += `<tr>
+          <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:12px;color:#185FA5;margin-right:4px;"></i>${cat}</td>
           <td>${s.total}</td><td>${s.present}</td><td>${s.abize}</td>
           <td style="color:#185FA5;font-weight:500;">${s.vis||0}</td>
           <td><span class="score-pill ${pillClass(s.scoreA)}">${fmt(s.scoreA)}%</span></td>
           <td><span class="score-pill ${pillClass(s.scoreB)}">${fmt(s.scoreB)}%</span></td>
           <td><span class="score-pill ${pillClass(s.final)}">${fmt(s.final)}%</span></td>
         </tr>`;
-
-        if (hasBreakdown) {
-          let igRows = '';
-          IGIHANDES.forEach((ig,ii) => {
-            const gs = s.byIgihande[ig] || {total:0,present:0,abize:0,vis:0,scoreA:0,scoreB:0,final:0};
-            igRows += `<tr>
-              <td class="left" style="padding-left:12px;">
-                <span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${AVCOLORS[ii%AVCOLORS.length][1]};margin-right:6px;vertical-align:middle;"></span>${ig}
-              </td>
-              <td>${gs.total}</td><td>${gs.present}</td><td>${gs.abize}</td><td style="color:#185FA5;font-weight:500;">${gs.vis||0}</td>
-              <td><span class="score-pill ${pillClass(gs.scoreA)}">${fmt(gs.scoreA)}%</span></td>
-              <td><span class="score-pill ${pillClass(gs.scoreB)}">${fmt(gs.scoreB)}%</span></td>
-              <td><span class="score-pill ${pillClass(gs.final)}">${fmt(gs.final)}%</span></td>
-            </tr>`;
-          });
-          rows += `<tr class="drill-row" id="${recId}-drill-${ci}">
-            <td colspan="8" style="padding:0;border-bottom:0.5px solid var(--color-border-tertiary);">
-              <div class="drill-inner">
-                <table class="drill-table">
-                  <thead><tr>
-                    <th class="left">Igihande</th><th>Total</th><th>Abaje</th><th>Abize(7)</th><th>Visitors</th><th>Score A</th><th>Score B</th><th>Final</th>
-                  </tr></thead>
-                  <tbody>${igRows}</tbody>
-                </table>
-              </div>
-            </td>
-          </tr>`;
-        }
       });
       const n=CATS.length;
       rows += `<tr style="background:#EBF3FD;font-weight:700;color:#185FA5;border-top:1.5px solid #185FA5;">
@@ -1210,23 +1180,6 @@ function renderHistory() {
         </div>`;
       el.appendChild(box);
 
-      // Wire up click-to-expand for each category row in this record
-      CATS.forEach((cat,ci) => {
-        const catRow = box.querySelector(`#${recId}-cat-${ci}`);
-        const drillRow = box.querySelector(`#${recId}-drill-${ci}`);
-        if (catRow && drillRow) {
-          catRow.addEventListener('click', () => {
-            const isOpen = drillRow.classList.contains('open');
-            box.querySelectorAll('.drill-row').forEach(r=>r.classList.remove('open'));
-            box.querySelectorAll('.cat-row').forEach(r=>r.classList.remove('expanded'));
-            if (!isOpen) {
-              drillRow.classList.add('open');
-              catRow.classList.add('expanded');
-            }
-          });
-        }
-      });
-
       box.querySelector('.btn-del-record').addEventListener('click', async () => {
         if (!confirm('Delete this Sabbath record?')) return;
         showLoading('Deleting...');
@@ -1245,12 +1198,6 @@ async function saveToHistory() {
   const snapshot = {};
   CATS.forEach(cat => {
     snapshot[cat] = combinedCatStats(cat);
-    // Also store per-Igihande breakdown for this category
-    snapshot[cat].byIgihande = {};
-    IGIHANDES.forEach(ig => {
-      snapshot[cat].byIgihande[ig] = igCatStats(ig, cat);
-    });
-  });
   });
 
   const today = new Date();
