@@ -298,6 +298,14 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <p style="font-size:12px;color:var(--color-text-secondary);" id="home-sub"></p>
   </div>
   <!-- Admin dash cards -->
+  <div id="samuel-reset-box" style="display:none;background:#fff0f0;border:0.5px solid #d32f2f;border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:14px;display:none;align-items:center;gap:12px;">
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:600;color:#d32f2f;margin-bottom:2px;"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:4px;"></i>Reset All Attendance</div>
+      <div style="font-size:11px;color:#b71c1c;">Clears all scores and visitor counts for all Igihande. Only use after saving to history.</div>
+    </div>
+    <button onclick="samuelReset()" style="background:#d32f2f;color:#fff;border:none;border-radius:var(--border-radius-md);padding:0 16px;height:36px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;">Reset now</button>
+  </div>
+
   <div class="dash-grid" id="admin-dash-cards" style="display:none;">
     <div class="dash-card" id="dash-gutanga" onclick="showSection('gutanga')">
       <div class="dash-icon dash-icon-blue"><i class="ti ti-clipboard-list"></i></div>
@@ -558,159 +566,7 @@ function hideLoading() {
   document.getElementById('loading-overlay').classList.remove('active');
 }
 
-// ═══ AUTO SAVE + RESET (Friday 23:00) ═══
-// Key stored in DB: sabbath_reset table, last_reset_date = last friday date processed
-
-function getThisFriday() {
-  // Get the most recent Friday (or today if Friday)
-  const d = new Date(), day = d.getDay(); // 0=Sun,1=Mon,...,5=Fri,6=Sat
-  const diff = day >= 5 ? day - 5 : day + 2; // days since last Friday
-  const fri = new Date(d);
-  fri.setDate(d.getDate() - diff);
-  fri.setHours(0,0,0,0);
-  return fri.toISOString().split('T')[0]; // YYYY-MM-DD
-}
-
-function isAutoSaveTime() {
-  const now = new Date();
-  const day = now.getDay(); // 5 = Friday
-  const hour = now.getHours();
-  return day === 5 && hour >= 23;
-}
-
-async function checkAutoSaveAndReset() {
-  if (!isAutoSaveTime()) return; // Only run on Friday at/after 23:00
-  const thisFri = getThisFriday();
-  try {
-    const rows = await sbGet('sabbath_reset','id=eq.1');
-    const lastReset = rows[0]?.last_reset_date || '';
-    if (lastReset === thisFri) return; // Already done this Friday
-
-    // 1. Save current attendance to history
-    const snapshot = {};
-    CATS.forEach(cat => {
-      snapshot[cat] = combinedCatStats(cat);
-      snapshot[cat].byIgihande = {};
-      IGIHANDES.forEach(ig => {
-        snapshot[cat].byIgihande[ig] = igCatStats(ig, cat);
-      });
-    });
-
-    // Use Saturday's date as the sabbath_date (next day after Friday)
-    const satDate = new Date();
-    satDate.setDate(satDate.getDate() + 1);
-    const satStr = satDate.toISOString().split('T')[0];
-
-    // Check if already saved for this Saturday
-    const existing = await sbGet('sabbath_history', `sabbath_date=eq.${satStr}`);
-    if (!existing || existing.length === 0) {
-      await fetch(`${SUPABASE_URL}/rest/v1/sabbath_history`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': 'application/json',
-          'Prefer': 'return=representation'
-        },
-        body: JSON.stringify({ sabbath_date: satStr, data: JSON.stringify(snapshot) })
-      });
-    }
-
-    // 2. Reset all scores and visitor counts
-    await sbPatch('members','score=neq.-1',{score:0});
-    await sbPatch('visitors','count=neq.-1',{count:0});
-
-    // 3. Mark this Friday as done
-    await sbUpsert('sabbath_reset',{id:1,last_reset_date:thisFri},'id');
-
-    // Reload cache
-    await loadAllData();
-    showToast('Attendance auto-saved and reset for new Sabbath! ✓');
-  } catch(e) {
-    console.error('Auto save error:', e);
-  }
-}
-
-
-function getThisSaturday() {
-  const d = new Date(), day = d.getDay();
-  const sat = new Date(d); sat.setDate(d.getDate() - (day===6?0:day+1)); sat.setHours(0,0,0,0);
-  return sat.toISOString().split('T')[0];
-}
-function getNextSaturday() {
-  const d = new Date(), day = d.getDay();
-  const sat = new Date(d); sat.setDate(d.getDate() + (day===6?7:6-day));
-  return sat.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-}
-async function checkAndReset() {
-  if (new Date().getDay() === 6) return; // Saturday — don't reset
-  const thisSat = getThisSaturday();
-  try {
-    const rows = await sbGet('sabbath_reset','id=eq.1');
-    const lastReset = rows[0]?.last_reset_date || '';
-    if (lastReset !== thisSat) {
-      showLoading('Preparing for new Sabbath...');
-      // Reset all scores to 0
-      await sbPatch('members','score=neq.-1',{score:0});
-      // Reset all visitor counts to 0
-      await sbPatch('visitors','count=neq.-1',{count:0});
-      // Update reset date
-      await sbUpsert('sabbath_reset',{id:1,last_reset_date:thisSat},'id');
-      hideLoading();
-    }
-  } catch(e) { hideLoading(); }
-}
-function showSabbathBanner() {
-  const banner = document.getElementById('sabbath-banner');
-  const day = new Date().getDay();
-  if (day===6) {
-    banner.className='sabbath-banner banner-saturday';
-    banner.innerHTML=`<i class="ti ti-star" style="font-size:16px;"></i><span><strong>Today is Sabbath!</strong> Record today's attendance below.</span>`;
-  } else if (day===0) {
-    banner.className='sabbath-banner banner-reset';
-    banner.innerHTML=`<i class="ti ti-refresh" style="font-size:16px;"></i><span><strong>New week started!</strong> Attendance reset. Next Sabbath: <strong>${getNextSaturday()}</strong></span>`;
-  } else {
-    banner.className='sabbath-banner banner-other';
-    banner.innerHTML=`<i class="ti ti-calendar" style="font-size:16px;"></i><span>Next Sabbath: <strong>${getNextSaturday()}</strong></span>`;
-  }
-}
-
-// ═══ HELPERS ═══
-function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
-function avatarStyle(i){const[bg,fg]=AVCOLORS[i%AVCOLORS.length];return`background:${bg};color:${fg};`;}
-function todayStr(){return new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
-function fmt(n){return Number.isFinite(n)?n.toFixed(1):'0.0';}
-function pillClass(v){if(v>=75)return'pill-high';if(v>=50)return'pill-mid';if(v>0)return'pill-low';return'pill-zero';}
-
-function getMembersList(ig, cat, it) {
-  return membersCache.filter(m => m.igihande===ig && m.category===cat && m.itsinda===it);
-}
-function getVisitorCount(ig, cat, it) {
-  const v = visitorsCache.find(v => v.igihande===ig && v.category===cat && v.itsinda===it);
-  return v ? v.count : 0;
-}
-function countStats(list) {
-  return {
-    present: list.filter(m=>m.score>=1).length,
-    abize:   list.filter(m=>m.score===7).length,
-    absent:  list.filter(m=>m.score===0).length,
-    total:   list.length
-  };
-}
-function combinedVisitors(cat) {
-  let t=0; IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>t+=getVisitorCount(ig,cat,it))); return t;
-}
-function combinedCatStats(cat) {
-  let total=0,present=0,abize=0;
-  IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>{
-    const s=countStats(getMembersList(ig,cat,it));
-    total+=s.total;present+=s.present;abize+=s.abize;
-  }));
-  const scoreA=total===0?0:(present/total)*100;
-  const scoreB=present===0?0:(abize/present)*100;
-  return{total,present,abize,vis:combinedVisitors(cat),scoreA,scoreB,final:(scoreA+scoreB)/2};
-}
-
+// ═══ LOAD DATA FROM SUPABASE ═══
 // ═══ LOAD DATA FROM SUPABASE ═══
 async function loadAllData() {
   showLoading('Loading data...');
@@ -747,11 +603,6 @@ async function doLogin() {
     document.getElementById('login-err').style.display='none';
     currentUser = rows[0];
     await loadAllData();
-    await checkAutoSaveAndReset();
-    // Check every 5 minutes in case app stays open
-    if (!window._autoSaveInterval) {
-      window._autoSaveInterval = setInterval(checkAutoSaveAndReset, 5 * 60 * 1000);
-    }
     showHome();
   } catch(e) {
     hideLoading();
@@ -786,6 +637,9 @@ function showHome() {
     document.getElementById('section-igihembwe').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='none';
     document.getElementById('btn-create-acc').style.display='flex';
+    // Show reset button only for samuel (owner)
+    const resetBox = document.getElementById('samuel-reset-box');
+    resetBox.style.display = currentUser.username === 'samuel' ? 'flex' : 'none';
     activeSection=null;
     document.querySelectorAll('.dash-card').forEach(c=>c.classList.remove('active'));
   } else {
@@ -795,6 +649,7 @@ function showHome() {
     document.getElementById('section-imimuriko').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='block';
     document.getElementById('btn-create-acc').style.display='none';
+    document.getElementById('samuel-reset-box').style.display='none';
     buildLeaderGrid();
   }
 }
@@ -1316,6 +1171,25 @@ async function saveToHistory() {
   } catch(e) {
     hideLoading();
     showToast('Network error: ' + e.message, 'error');
+  }
+}
+
+// ═══ SAMUEL-ONLY RESET ═══
+async function samuelReset() {
+  if (currentUser.username !== 'samuel') return; // extra safety check
+  if (!confirm('Reset ALL attendance for all Igihande?\n\nMake sure you have already saved to history before resetting.\n\nThis cannot be undone.')) return;
+  showLoading('Resetting all attendance...');
+  try {
+    await sbPatch('members','score=neq.-1',{score:0});
+    await sbPatch('visitors','count=neq.-1',{count:0});
+    // update local cache
+    membersCache.forEach(m => m.score = 0);
+    visitorsCache.forEach(v => v.count = 0);
+    hideLoading();
+    showToast('All attendance reset successfully! ✓');
+  } catch(e) {
+    hideLoading();
+    showToast('Reset failed. Check connection.','error');
   }
 }
 
