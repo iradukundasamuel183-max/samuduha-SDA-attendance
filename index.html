@@ -192,6 +192,9 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .history-toolbar select{font-size:13px;height:34px;flex:1;min-width:120px;}
 .btn-save-history{height:34px;padding:0 14px;font-size:13px;background:#085041;color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
 .btn-save-history:hover{background:#063328;}
+.btn-print-history{height:34px;padding:0 14px;font-size:13px;background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
+.btn-print-history:hover{border-color:#185FA5;color:#185FA5;}
+.print-header{display:none;}
 .history-empty{text-align:center;padding:2rem;font-size:13px;color:var(--color-text-tertiary);}
 .sabbath-record{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:12px;overflow:hidden;}
 .sabbath-record-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);}
@@ -218,6 +221,25 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .drill-table tr:hover td{background:#EBF3FD;}
 .expand-icon{font-size:12px;margin-left:6px;color:#185FA5;transition:transform .2s;display:inline-block;}
 .expanded .expand-icon{transform:rotate(90deg);}
+
+/* ═══ PRINT: only the saved history records print, everything else is hidden ═══ */
+@media print{
+  body{background:#fff;padding:0;}
+  .page{max-width:100%;}
+  #screen-login,.loading-overlay,#global-toast,#toast{display:none!important;}
+  .topbar,.sabbath-banner,#home-welcome-box,.reset-box,.dash-grid,
+  #section-gutanga,#section-imimuriko,#leader-ig-wrap,
+  .section-header,.history-toolbar,.btn-del-record{display:none!important;}
+  #section-igihembwe{display:block!important;}
+  .print-header{display:block!important;margin-bottom:14px;border-bottom:2px solid #185FA5;padding-bottom:10px;}
+  .print-header-title{font-size:16px;font-weight:700;color:#0C447C;}
+  .print-header-sub{font-size:12px;font-weight:600;color:#185FA5;margin-top:2px;}
+  .print-header-meta{font-size:10px;color:#5c6370;margin-top:4px;}
+  .month-header{color:#0C447C!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .sabbath-record{break-inside:avoid;page-break-inside:avoid;margin-bottom:16px;}
+  .imim-table th{background:#3C6EA0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .score-pill{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
 </style>
 </head>
 <body>
@@ -270,7 +292,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     </div>
   </div>
   <div class="sabbath-banner" id="sabbath-banner"></div>
-  <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:14px;">
+  <div id="home-welcome-box" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:14px;">
     <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);">Welcome, <span id="welcome-name"></span></p>
     <p style="font-size:12px;color:var(--color-text-secondary);" id="home-sub"></p>
   </div>
@@ -351,10 +373,20 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
       <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
     </div>
 
+    <!-- Print-only header, shown only when printing -->
+    <div class="print-header" id="print-header">
+      <div class="print-header-title">SAMUDUHA SDA SABBATH SCHOOL</div>
+      <div class="print-header-sub">IMIMURIKO Y'IGIHEMBWE — Sabbath Attendance History</div>
+      <div class="print-header-meta" id="print-header-meta"></div>
+    </div>
+
     <!-- Save to history + month filter -->
     <div class="history-toolbar">
       <button class="btn-save-history" id="btn-save-history" onclick="saveToHistory()" style="display:none;">
         <i class="ti ti-device-floppy" style="font-size:14px;"></i>Save current Sabbath to history
+      </button>
+      <button class="btn-print-history" id="btn-print-history" onclick="printHistory()">
+        <i class="ti ti-printer" style="font-size:14px;"></i>Print
       </button>
       <select id="history-month-filter" onchange="renderHistory()">
         <option value="">All months</option>
@@ -1090,6 +1122,15 @@ async function loadAndRenderHistory() {
     showToast('Failed to load history.','error');
   }
   hideLoading();
+}
+
+function printHistory() {
+  const filterSel = document.getElementById('history-month-filter');
+  const filterLabel = filterSel.options[filterSel.selectedIndex].text;
+  const generated = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('print-header-meta').textContent =
+    `Showing: ${filterLabel}  ·  Printed on ${generated}`;
+  window.print();
 }
 
 function buildMonthFilter() {
