@@ -3,7 +3,33 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>SAMUDUHA SDA SABBATH SCHOOL ATTENDANCE</title>
+<title>Samuduha SDA Sabbath School Attendance | Kigali, Rwanda</title>
+
+<!-- SEO Meta Tags -->
+<meta name="description" content="Official attendance management system for Samuduha SDA Sabbath School in Kigali, Rwanda. Tracks weekly Sabbath attendance for all Igihande groups including Abakuze, Abasore, Ingimbi and Abana categories."/>
+<meta name="keywords" content="Samuduha SDA, Sabbath School, attendance, Kigali Rwanda, SDA church, Seventh Day Adventist, Igihande, Abakuze, Abasore, Ingimbi, Abana, Samuduha SDA Sabbath School"/>
+<meta name="author" content="Samuduha SDA Sabbath School"/>
+<meta name="robots" content="index, follow"/>
+<meta name="language" content="English"/>
+<meta name="revisit-after" content="7 days"/>
+
+<!-- Open Graph (WhatsApp, Facebook previews) -->
+<meta property="og:title" content="Samuduha SDA Sabbath School Attendance"/>
+<meta property="og:description" content="Official attendance management system for Samuduha SDA Sabbath School in Kigali, Rwanda."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://samuduha-sda-attendance.vercel.app"/>
+<meta property="og:site_name" content="Samuduha SDA Sabbath School"/>
+
+<!-- Twitter/X Card -->
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Samuduha SDA Sabbath School Attendance"/>
+<meta name="twitter:description" content="Official attendance management system for Samuduha SDA Sabbath School in Kigali, Rwanda."/>
+
+<!-- Canonical URL -->
+<link rel="canonical" href="https://samuduha-sda-attendance.vercel.app"/>
+
+<!-- Google Search Console Verification -->
+<meta name="google-site-verification" content="OAqa-vM6BwccZFkmON1iPtruz_-1Eb5Yv21mqtEIlPM" />
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
 <style>
 :root{
@@ -192,9 +218,6 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .history-toolbar select{font-size:13px;height:34px;flex:1;min-width:120px;}
 .btn-save-history{height:34px;padding:0 14px;font-size:13px;background:#085041;color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
 .btn-save-history:hover{background:#063328;}
-.btn-print-history{height:34px;padding:0 14px;font-size:13px;background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
-.btn-print-history:hover{border-color:#185FA5;color:#185FA5;}
-.print-header{display:none;}
 .history-empty{text-align:center;padding:2rem;font-size:13px;color:var(--color-text-tertiary);}
 .sabbath-record{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);margin-bottom:12px;overflow:hidden;}
 .sabbath-record-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);}
@@ -222,24 +245,28 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .expand-icon{font-size:12px;margin-left:6px;color:#185FA5;transition:transform .2s;display:inline-block;}
 .expanded .expand-icon{transform:rotate(90deg);}
 
-/* ═══ PRINT: only the saved history records print, everything else is hidden ═══ */
-@media print{
-  body{background:#fff;padding:0;}
-  .page{max-width:100%;}
-  #screen-login,.loading-overlay,#global-toast,#toast{display:none!important;}
-  .topbar,.sabbath-banner,#home-welcome-box,.reset-box,.dash-grid,
-  #section-gutanga,#section-imimuriko,#leader-ig-wrap,
-  .section-header,.history-toolbar,.btn-del-record{display:none!important;}
-  #section-igihembwe{display:block!important;}
-  .print-header{display:block!important;margin-bottom:14px;border-bottom:2px solid #185FA5;padding-bottom:10px;}
-  .print-header-title{font-size:16px;font-weight:700;color:#0C447C;}
-  .print-header-sub{font-size:12px;font-weight:600;color:#185FA5;margin-top:2px;}
-  .print-header-meta{font-size:10px;color:#5c6370;margin-top:4px;}
-  .month-header{color:#0C447C!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .sabbath-record{break-inside:avoid;page-break-inside:avoid;margin-bottom:16px;}
-  .imim-table th{background:#3C6EA0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .score-pill{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+/* ── PRINT STYLES ── */
+@media print {
+  body { background:#fff !important; padding:0; }
+  .page { max-width:100% !important; }
+  .screen { display:none !important; }
+  #print-area { display:block !important; }
+  .print-header { text-align:center; margin-bottom:16px; }
+  .print-header h2 { font-size:16px; font-weight:700; color:#000; }
+  .print-header p { font-size:12px; color:#444; margin-top:4px; }
+  .print-record { margin-bottom:24px; page-break-inside:avoid; border:1px solid #ccc; border-radius:6px; overflow:hidden; }
+  .print-record-title { background:#185FA5; color:#fff; padding:8px 12px; font-size:13px; font-weight:700; }
+  .print-table { width:100%; border-collapse:collapse; font-size:11px; }
+  .print-table th { background:#185FA5; color:#fff; padding:6px 8px; text-align:center; }
+  .print-table th.left { text-align:left; }
+  .print-table td { padding:6px 8px; border-bottom:1px solid #ddd; text-align:center; }
+  .print-table td.left { text-align:left; font-weight:600; }
+  .print-table tr:last-child td { border-bottom:none; background:#EBF3FD; font-weight:700; }
+  .print-month-title { font-size:13px; font-weight:700; color:#185FA5; margin:16px 0 8px; text-transform:uppercase; border-bottom:2px solid #185FA5; padding-bottom:4px; }
+  .print-footer { text-align:center; font-size:10px; color:#888; margin-top:16px; }
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
 }
+#print-area { display:none; }
 </style>
 </head>
 <body>
@@ -292,17 +319,17 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     </div>
   </div>
   <div class="sabbath-banner" id="sabbath-banner"></div>
-  <div id="home-welcome-box" style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:14px;">
+  <div style="background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 14px;margin-bottom:14px;">
     <p style="font-size:13px;font-weight:500;color:var(--color-text-primary);">Welcome, <span id="welcome-name"></span></p>
     <p style="font-size:12px;color:var(--color-text-secondary);" id="home-sub"></p>
   </div>
-  <!-- Admin reset box — visible only to admin -->
-  <div class="reset-box" id="admin-reset-box" style="display:none;">
-    <div class="reset-box-text">
-      <div class="reset-box-title"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:4px;"></i>Reset Attendance</div>
-      <div class="reset-box-sub">Clears all scores and visitor counts for all Igihande. Use after announcing last Sabbath's records.</div>
+  <!-- Admin dash cards -->
+  <div id="samuel-reset-box" style="display:none;background:#fff0f0;border:0.5px solid #d32f2f;border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:14px;align-items:center;gap:12px;">
+    <div style="flex:1;">
+      <div style="font-size:13px;font-weight:600;color:#d32f2f;margin-bottom:2px;"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:4px;"></i>Reset All Attendance</div>
+      <div style="font-size:11px;color:#b71c1c;">Clears all scores and visitor counts for all Igihande. Only use after saving to history.</div>
     </div>
-    <button class="btn-reset" onclick="openResetConfirm()">Reset now</button>
+    <button onclick="samuelReset()" style="background:#d32f2f;color:#fff;border:none;border-radius:var(--border-radius-md);padding:0 16px;height:36px;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0;">Reset now</button>
   </div>
 
   <div class="dash-grid" id="admin-dash-cards" style="display:none;">
@@ -373,28 +400,41 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
       <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
     </div>
 
-    <!-- Print-only header, shown only when printing -->
-    <div class="print-header" id="print-header">
-      <div class="print-header-title">SAMUDUHA SDA SABBATH SCHOOL</div>
-      <div class="print-header-sub">IMIMURIKO Y'IGIHEMBWE — Sabbath Attendance History</div>
-      <div class="print-header-meta" id="print-header-meta"></div>
-    </div>
-
-    <!-- Save to history + month filter -->
+    <!-- Save to history + month filter + print -->
     <div class="history-toolbar">
-      <button class="btn-save-history" id="btn-save-history" onclick="saveToHistory()" style="display:none;">
+      <button class="btn-save-history" onclick="saveToHistory()">
         <i class="ti ti-device-floppy" style="font-size:14px;"></i>Save current Sabbath to history
-      </button>
-      <button class="btn-print-history" id="btn-print-history" onclick="printHistory()">
-        <i class="ti ti-printer" style="font-size:14px;"></i>Print
       </button>
       <select id="history-month-filter" onchange="renderHistory()">
         <option value="">All months</option>
       </select>
+      <button class="btn-save-history" style="background:#3C3489;" onclick="printHistory()">
+        <i class="ti ti-printer" style="font-size:14px;"></i>Print
+      </button>
     </div>
 
     <div id="history-content"></div>
   </div>
+
+  <!-- Leader: direct igihande -->
+  <div id="leader-ig-wrap" style="display:none;">
+    <div class="section-header">
+      <div class="section-header-icon dash-icon-blue"><i class="ti ti-clipboard-list" style="font-size:15px;color:#185FA5;"></i></div>
+      <span class="section-title-text">Your Igihande</span>
+    </div>
+    <div class="igihande-grid" id="ig-grid-leader"></div>
+  </div>
+
+</div>
+
+<!-- Hidden print area — populated on print -->
+<div id="print-area">
+  <div class="print-header">
+    <h2>SAMUDUHA SDA SABBATH SCHOOL ATTENDANCE</h2>
+    <p id="print-subtitle"></p>
+  </div>
+  <div id="print-records"></div>
+  <div class="print-footer">Printed on <span id="print-date"></span> · Samuduha SDA Sabbath School</div>
 </div>
 
 <!-- ATTENDANCE -->
@@ -492,18 +532,6 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
   </div>
 </div>
 
-<!-- RESET CONFIRM MODAL -->
-<div class="modal-confirm-bg" id="modal-reset-confirm">
-  <div class="modal-confirm">
-    <i class="ti ti-alert-triangle"></i>
-    <h3>Reset all attendance?</h3>
-    <p>This will clear ALL scores and visitor counts for all 7 Igihande. This cannot be undone. Only do this after announcing last Sabbath's records.</p>
-    <div class="modal-confirm-btns">
-      <button style="background:var(--color-background-secondary);color:var(--color-text-primary);border:none;" onclick="closeResetConfirm()">Cancel</button>
-      <button style="background:#d32f2f;color:#fff;border:none;" onclick="doManualReset()">Yes, reset</button>
-    </div>
-  </div>
-</div>
 
 </div>
 
@@ -550,7 +578,7 @@ async function sbUpsert(table, data, onConflict) {
 }
 
 // ═══ CONSTANTS ═══
-const CATS = ['Abakuze','Abasore','Ingimbi','Abana'];
+const CATS = ['Abana','Ingimbi','Abasore','Abakuze'];
 const CAT_ICONS = {'Abakuze':'ti-user','Abasore':'ti-users','Ingimbi':'ti-mood-kid','Abana':'ti-baby-carriage'};
 const ITSINDAS = ['Itsinda rya 1','Itsinda rya 2','Itsinda rya 3','Itsinda rya 4','Itsinda rya 5'];
 const AVCOLORS = [
@@ -560,12 +588,8 @@ const AVCOLORS = [
 const IGIHANDES = ['Samuduha A','Samuduha B','Cyarugondo A','Cyarugondo B','Kabeza','Cyeru na Gakoni','Busanza'];
 
 // ═══ STATE ═══
-let currentUser = null, currentIg = null, currentCat = 'Abakuze', currentIt = 'Itsinda rya 1', activeSection = null;
+let currentUser = null, currentIg = null, currentCat = 'Abana', currentIt = 'Itsinda rya 1', activeSection = null;
 let selectedRole = 'leader';
-const OWNER_USERNAME = 'samuel';
-function isOwner() {
-  return !!currentUser && (currentUser.username || '').toLowerCase() === OWNER_USERNAME;
-}
 let membersCache = []; // flat array from DB
 let visitorsCache = []; // flat array from DB
 
@@ -578,58 +602,11 @@ function hideLoading() {
   document.getElementById('loading-overlay').classList.remove('active');
 }
 
-// ═══ MANUAL RESET ═══
-function openResetConfirm() {
-  if (!isOwner()) { showToast('Only the owner account can reset attendance.', 'error'); return; }
-  document.getElementById('modal-reset-confirm').style.display = 'flex';
-}
-function closeResetConfirm() {
-  document.getElementById('modal-reset-confirm').style.display = 'none';
-}
-async function doManualReset() {
-  closeResetConfirm();
-  showLoading('Resetting all attendance...');
-  try {
-    await sbPatch('members','score=neq.-1',{score:0});
-    await sbPatch('visitors','count=neq.-1',{count:0});
-    // reload cache
-    await loadAllData();
-    hideLoading();
-    showToast('All attendance has been reset successfully!');
-  } catch(e) {
-    hideLoading();
-    showToast('Reset failed. Check connection.','error');
-  }
-}
-
-
-function getThisSaturday() {
-  const d = new Date(), day = d.getDay();
-  const sat = new Date(d); sat.setDate(d.getDate() - (day===6?0:day+1)); sat.setHours(0,0,0,0);
-  return sat.toISOString().split('T')[0];
-}
+// ═══ SABBATH BANNER ═══
 function getNextSaturday() {
   const d = new Date(), day = d.getDay();
   const sat = new Date(d); sat.setDate(d.getDate() + (day===6?7:6-day));
   return sat.toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-}
-async function checkAndReset() {
-  if (new Date().getDay() === 6) return; // Saturday — don't reset
-  const thisSat = getThisSaturday();
-  try {
-    const rows = await sbGet('sabbath_reset','id=eq.1');
-    const lastReset = rows[0]?.last_reset_date || '';
-    if (lastReset !== thisSat) {
-      showLoading('Preparing for new Sabbath...');
-      // Reset all scores to 0
-      await sbPatch('members','score=neq.-1',{score:0});
-      // Reset all visitor counts to 0
-      await sbPatch('visitors','count=neq.-1',{count:0});
-      // Update reset date
-      await sbUpsert('sabbath_reset',{id:1,last_reset_date:thisSat},'id');
-      hideLoading();
-    }
-  } catch(e) { hideLoading(); }
 }
 function showSabbathBanner() {
   const banner = document.getElementById('sabbath-banner');
@@ -639,47 +616,11 @@ function showSabbathBanner() {
     banner.innerHTML=`<i class="ti ti-star" style="font-size:16px;"></i><span><strong>Today is Sabbath!</strong> Record today's attendance below.</span>`;
   } else if (day===0) {
     banner.className='sabbath-banner banner-reset';
-    banner.innerHTML=`<i class="ti ti-refresh" style="font-size:16px;"></i><span><strong>New week started!</strong> Attendance reset. Next Sabbath: <strong>${getNextSaturday()}</strong></span>`;
+    banner.innerHTML=`<i class="ti ti-refresh" style="font-size:16px;"></i><span><strong>New week started!</strong> Next Sabbath: <strong>${getNextSaturday()}</strong></span>`;
   } else {
     banner.className='sabbath-banner banner-other';
     banner.innerHTML=`<i class="ti ti-calendar" style="font-size:16px;"></i><span>Next Sabbath: <strong>${getNextSaturday()}</strong></span>`;
   }
-}
-
-// ═══ HELPERS ═══
-function initials(n){return n.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();}
-function avatarStyle(i){const[bg,fg]=AVCOLORS[i%AVCOLORS.length];return`background:${bg};color:${fg};`;}
-function todayStr(){return new Date().toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'});}
-function fmt(n){return Number.isFinite(n)?n.toFixed(1):'0.0';}
-function pillClass(v){if(v>=75)return'pill-high';if(v>=50)return'pill-mid';if(v>0)return'pill-low';return'pill-zero';}
-
-function getMembersList(ig, cat, it) {
-  return membersCache.filter(m => m.igihande===ig && m.category===cat && m.itsinda===it);
-}
-function getVisitorCount(ig, cat, it) {
-  const v = visitorsCache.find(v => v.igihande===ig && v.category===cat && v.itsinda===it);
-  return v ? v.count : 0;
-}
-function countStats(list) {
-  return {
-    present: list.filter(m=>m.score>=1).length,
-    abize:   list.filter(m=>m.score===7).length,
-    absent:  list.filter(m=>m.score===0).length,
-    total:   list.length
-  };
-}
-function combinedVisitors(cat) {
-  let t=0; IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>t+=getVisitorCount(ig,cat,it))); return t;
-}
-function combinedCatStats(cat) {
-  let total=0,present=0,abize=0;
-  IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>{
-    const s=countStats(getMembersList(ig,cat,it));
-    total+=s.total;present+=s.present;abize+=s.abize;
-  }));
-  const scoreA=total===0?0:(present/total)*100;
-  const scoreB=present===0?0:(abize/present)*100;
-  return{total,present,abize,vis:combinedVisitors(cat),scoreA,scoreB,final:(scoreA+scoreB)/2};
 }
 
 // ═══ LOAD DATA FROM SUPABASE ═══
@@ -752,7 +693,9 @@ function showHome() {
     document.getElementById('section-igihembwe').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='none';
     document.getElementById('btn-create-acc').style.display='flex';
-    document.getElementById('admin-reset-box').style.display=isOwner()?'flex':'none';
+    // Show reset button only for samuel (owner)
+    const resetBox = document.getElementById('samuel-reset-box');
+    resetBox.style.display = currentUser.username === 'samuel' ? 'flex' : 'none';
     activeSection=null;
     document.querySelectorAll('.dash-card').forEach(c=>c.classList.remove('active'));
   } else {
@@ -762,7 +705,7 @@ function showHome() {
     document.getElementById('section-imimuriko').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='block';
     document.getElementById('btn-create-acc').style.display='none';
-    document.getElementById('admin-reset-box').style.display='none';
+    document.getElementById('samuel-reset-box').style.display='none';
     buildLeaderGrid();
   }
 }
@@ -793,7 +736,6 @@ function showSection(name) {
     document.getElementById('dash-igihembwe').classList.add('active');
     document.getElementById('section-igihembwe').style.display='block';
     document.getElementById('home-sub').textContent='Past Sabbath attendance history.';
-    document.getElementById('btn-save-history').style.display=isOwner()?'flex':'none';
     loadAndRenderHistory();
   }
 }
@@ -1124,15 +1066,6 @@ async function loadAndRenderHistory() {
   hideLoading();
 }
 
-function printHistory() {
-  const filterSel = document.getElementById('history-month-filter');
-  const filterLabel = filterSel.options[filterSel.selectedIndex].text;
-  const generated = new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('print-header-meta').textContent =
-    `Showing: ${filterLabel}  ·  Printed on ${generated}`;
-  window.print();
-}
-
 function buildMonthFilter() {
   const sel = document.getElementById('history-month-filter');
   const months = [...new Set(historyCache.map(r => r.sabbath_date.slice(0,7)))];
@@ -1242,7 +1175,6 @@ function renderHistory() {
 }
 
 async function saveToHistory() {
-  if (!isOwner()) { showToast('Only the owner account can save to history.', 'error'); return; }
   const snapshot = {};
   CATS.forEach(cat => {
     snapshot[cat] = combinedCatStats(cat);
@@ -1298,6 +1230,83 @@ async function saveToHistory() {
   }
 }
 
+// ═══ SAMUEL-ONLY RESET ═══
+async function samuelReset() {
+  if (currentUser.username !== 'samuel') return; // extra safety check
+  if (!confirm('Reset ALL attendance for all Igihande?\n\nMake sure you have already saved to history before resetting.\n\nThis cannot be undone.')) return;
+  showLoading('Resetting all attendance...');
+  try {
+    await sbPatch('members','score=neq.-1',{score:0});
+    await sbPatch('visitors','count=neq.-1',{count:0});
+    // update local cache
+    membersCache.forEach(m => m.score = 0);
+    visitorsCache.forEach(v => v.count = 0);
+    hideLoading();
+    showToast('All attendance reset successfully! ✓');
+  } catch(e) {
+    hideLoading();
+    showToast('Reset failed. Check connection.','error');
+  }
+}
+
+// ═══ PRINT HISTORY ═══
+function printHistory() {
+  const filter = document.getElementById('history-month-filter').value;
+  let records = historyCache;
+  if (filter) records = records.filter(r => r.sabbath_date.startsWith(filter));
+
+  if (!records.length) { showToast('No records to print.', 'error'); return; }
+
+  const subtitle = filter
+    ? (() => { const [y,m]=filter.split('-'); return 'Month: '+new Date(y,m-1).toLocaleDateString('en-GB',{month:'long',year:'numeric'}); })()
+    : 'All Sabbath Records';
+  document.getElementById('print-subtitle').textContent = "IMIMURIKO Y'IGIHEMBWE — " + subtitle;
+  document.getElementById('print-date').textContent = new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+  const grouped = {};
+  records.forEach(r => {
+    const month = r.sabbath_date.slice(0,7);
+    if (!grouped[month]) grouped[month] = [];
+    grouped[month].push(r);
+  });
+
+  const container = document.getElementById('print-records');
+  container.innerHTML = '';
+
+  Object.keys(grouped).sort().reverse().forEach(month => {
+    const [y,mo] = month.split('-');
+    const monthLabel = new Date(y,mo-1).toLocaleDateString('en-GB',{month:'long',year:'numeric'});
+    const mTitle = document.createElement('div');
+    mTitle.className = 'print-month-title';
+    mTitle.textContent = monthLabel + ' — ' + grouped[month].length + ' Sabbath(s)';
+    container.appendChild(mTitle);
+
+    grouped[month].forEach(record => {
+      const data = typeof record.data === 'string' ? JSON.parse(record.data) : record.data;
+      const dateLabel = new Date(record.sabbath_date+'T12:00:00').toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+      let rows='',gT=0,gP=0,gA=0,gV=0,sA=0,sB=0,sF=0;
+      CATS.forEach(cat => {
+        const s = data[cat] || {total:0,present:0,abize:0,vis:0,scoreA:0,scoreB:0,final:0};
+        gT+=s.total;gP+=s.present;gA+=s.abize;gV+=(s.vis||0);
+        sA+=s.scoreA;sB+=s.scoreB;sF+=s.final;
+        rows+=`<tr><td class="left">${cat}</td><td>${s.total}</td><td>${s.present}</td><td>${s.abize}</td><td>${s.vis||0}</td><td>${fmt(s.scoreA)}%</td><td>${fmt(s.scoreB)}%</td><td>${fmt(s.final)}%</td></tr>`;
+      });
+      const n=CATS.length;
+      rows+=`<tr><td class="left">TOTAL</td><td>${gT}</td><td>${gP}</td><td>${gA}</td><td>${gV}</td><td>${fmt(sA/n)}%</td><td>${fmt(sB/n)}%</td><td>${fmt(sF/n)}%</td></tr>`;
+      const box = document.createElement('div');
+      box.className = 'print-record';
+      box.innerHTML = `
+        <div class="print-record-title">📅 ${dateLabel}</div>
+        <table class="print-table">
+          <thead><tr><th class="left">Category</th><th>Total</th><th>Abaje</th><th>Abize(7)</th><th>Visitors</th><th>Score A</th><th>Score B</th><th>Final</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+      container.appendChild(box);
+    });
+  });
+
+  window.print();
+}
 
 function showToast(msg, type='success') {
   // Update local toast if visible (attendance screen)
