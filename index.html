@@ -324,7 +324,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <p style="font-size:12px;color:var(--color-text-secondary);" id="home-sub"></p>
   </div>
   <!-- Admin dash cards -->
-  <div id="samuel-reset-box" style="display:none;background:#fff0f0;border:0.5px solid #d32f2f;border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:14px;display:none;align-items:center;gap:12px;">
+  <div id="samuel-reset-box" style="display:none;background:#fff0f0;border:0.5px solid #d32f2f;border-radius:var(--border-radius-lg);padding:12px 14px;margin-bottom:14px;align-items:center;gap:12px;">
     <div style="flex:1;">
       <div style="font-size:13px;font-weight:600;color:#d32f2f;margin-bottom:2px;"><i class="ti ti-refresh" style="font-size:13px;vertical-align:-1px;margin-right:4px;"></i>Reset All Attendance</div>
       <div style="font-size:11px;color:#b71c1c;">Clears all scores and visitor counts for all Igihande. Only use after saving to history.</div>
@@ -415,6 +415,16 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 
     <div id="history-content"></div>
   </div>
+
+  <!-- Leader: direct igihande -->
+  <div id="leader-ig-wrap" style="display:none;">
+    <div class="section-header">
+      <div class="section-header-icon dash-icon-blue"><i class="ti ti-clipboard-list" style="font-size:15px;color:#185FA5;"></i></div>
+      <span class="section-title-text">Your Igihande</span>
+    </div>
+    <div class="igihande-grid" id="ig-grid-leader"></div>
+  </div>
+
 </div>
 
 <!-- Hidden print area — populated on print -->
