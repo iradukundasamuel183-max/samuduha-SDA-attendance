@@ -960,6 +960,38 @@ async function createAccount() {
 }
 
 // ═══ IMIMURIKO TABLE ═══
+// ═══ DATA HELPERS ═══
+function getMembersList(ig, cat, it) {
+  return membersCache.filter(m => m.igihande===ig && m.category===cat && m.itsinda===it);
+}
+function getVisitorCount(ig, cat, it) {
+  const v = visitorsCache.find(v => v.igihande===ig && v.category===cat && v.itsinda===it);
+  return v ? v.count : 0;
+}
+function countStats(list) {
+  return {
+    present: list.filter(m=>m.score>=1).length,
+    abize:   list.filter(m=>m.score===7).length,
+    absent:  list.filter(m=>m.score===0).length,
+    total:   list.length
+  };
+}
+function combinedVisitors(cat) {
+  let t=0; IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>t+=getVisitorCount(ig,cat,it))); return t;
+}
+function combinedCatStats(cat) {
+  let total=0,present=0,abize=0;
+  IGIHANDES.forEach(ig=>{
+    ITSINDAS.forEach(it=>{
+      const s=countStats(getMembersList(ig,cat,it));
+      total+=s.total;present+=s.present;abize+=s.abize;
+    });
+  });
+  const scoreA=total===0?0:(present/total)*100;
+  const scoreB=present===0?0:(abize/present)*100;
+  return{total,present,abize,vis:combinedVisitors(cat),scoreA,scoreB,final:(scoreA+scoreB)/2};
+}
+
 function igCatStats(ig, cat) {
   let total=0,present=0,abize=0;
   ITSINDAS.forEach(it=>{
