@@ -736,8 +736,9 @@ async function doManualReset() {
   closeResetConfirm();
   showLoading('Resetting all attendance...');
   try {
-    await sbPatch('members','score=neq.-1',{score:0});
+    await sbPatch('members','score=neq.-1',{score:0,mark:null});
     await sbPatch('visitors','count=neq.-1',{count:0});
+    await sbPatch('simple_stats','category=in.(Abana,Ingimbi)',{registered:0,present:0,abize:0,visitors:0});
     // reload cache
     await loadAllData();
     hideLoading();
@@ -768,9 +769,11 @@ async function checkAndReset() {
     if (lastReset !== thisSat) {
       showLoading('Preparing for new Sabbath...');
       // Reset all scores to 0
-      await sbPatch('members','score=neq.-1',{score:0});
+      await sbPatch('members','score=neq.-1',{score:0,mark:null});
       // Reset all visitor counts to 0
       await sbPatch('visitors','count=neq.-1',{count:0});
+      // Reset Abana n'Ingimbi totals
+      await sbPatch('simple_stats','category=in.(Abana,Ingimbi)',{registered:0,present:0,abize:0,visitors:0});
       // Update reset date
       await sbUpsert('sabbath_reset',{id:1,last_reset_date:thisSat},'id');
       hideLoading();
