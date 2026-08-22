@@ -196,6 +196,11 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .num-cell{font-size:14px;font-weight:500;color:var(--color-text-primary);}
 /* History section */
 .dash-icon-green{background:#E1F5EE;color:#085041;}
+.dash-icon-amber{background:#FAEEDA;color:#D4922A;}
+.simple-cat-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;margin-bottom:14px;}
+.simple-cat-title{font-size:13px;font-weight:700;color:#D4922A;text-transform:uppercase;letter-spacing:.04em;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.simple-cat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.simple-field label{display:block;font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;}
 .history-toolbar{display:flex;gap:8px;margin-bottom:14px;align-items:center;flex-wrap:wrap;}
 .history-toolbar select{font-size:13px;height:34px;flex:1;min-width:120px;}
 .btn-save-history{height:34px;padding:0 14px;font-size:13px;background:#085041;color:#fff;border:none;border-radius:var(--border-radius-md);cursor:pointer;display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;}
@@ -213,6 +218,8 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .month-header{font-size:12px;font-weight:700;color:#185FA5;text-transform:uppercase;letter-spacing:.05em;padding:8px 0 6px;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
 /* IMIMURIKO drill-down */
 .imim-table tbody tr.cat-row{cursor:pointer;}
+.imim-table tbody tr.cat-row-simple{cursor:default;}
+.imim-table tbody tr.cat-row-simple:hover td{background:transparent;}
 .imim-table tbody tr.cat-row td.left{color:#185FA5;}
 .imim-table tbody tr.cat-row:hover td{background:#EBF3FD;}
 .imim-table tbody tr.cat-row.expanded td{background:#EBF3FD;border-bottom:none;}
@@ -324,7 +331,12 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
       <div><div class="dash-title">IMIMURIKO</div><div class="dash-sub">School-wide performance</div></div>
       <div class="dash-arrow"><i class="ti ti-arrow-right"></i></div>
     </div>
-    <div class="dash-card" id="dash-igihembwe" onclick="showSection('igihembwe')" style="grid-column:1/-1;">
+    <div class="dash-card" id="dash-abanaingimbi" onclick="showSection('abanaingimbi')">
+      <div class="dash-icon dash-icon-amber"><i class="ti ti-baby-carriage"></i></div>
+      <div><div class="dash-title">ABANA N'INGIMBI</div><div class="dash-sub">School-wide totals only</div></div>
+      <div class="dash-arrow"><i class="ti ti-arrow-right"></i></div>
+    </div>
+    <div class="dash-card" id="dash-igihembwe" onclick="showSection('igihembwe')">
       <div class="dash-icon dash-icon-green"><i class="ti ti-calendar-stats"></i></div>
       <div><div class="dash-title">IMIMURIKO Y'IGIHEMBWE</div><div class="dash-sub">Past Sabbath attendance history by month</div></div>
       <div class="dash-arrow"><i class="ti ti-arrow-right"></i></div>
@@ -363,6 +375,93 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
           <tbody id="imim-tbody"></tbody>
         </table>
       </div>
+    </div>
+  </div>
+  <div id="section-abanaingimbi" style="display:none;">
+    <div class="section-header">
+      <div class="section-header-icon dash-icon-amber"><i class="ti ti-baby-carriage" style="font-size:15px;color:#D4922A;"></i></div>
+      <span class="section-title-text">ABANA N'INGIMBI</span>
+      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+    </div>
+    <div class="formula-note">
+      Enter <strong>school-wide totals</strong> only — no per-Igihande breakdown for these two groups.<br>
+      <strong>Abanditswe</strong> = registered &nbsp;·&nbsp; <strong>Abaje</strong> = present (1+7) &nbsp;·&nbsp; <strong>Abize</strong> = scored 7 &nbsp;·&nbsp; <strong>Abashyitsi</strong> = visitors
+    </div>
+    <div class="simple-cat-card">
+      <div class="simple-cat-title"><i class="ti ti-baby-carriage" style="font-size:15px;"></i>ABANA</div>
+      <div class="simple-cat-grid">
+        <div class="simple-field">
+          <label>Abanditswe</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Abana','registered',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Abana-registered" value="0" min="0" oninput="syncSimple('Abana','registered')"/>
+            <button class="v-btn" onclick="changeSimple('Abana','registered',1)">+</button>
+          </div>
+        </div>
+        <div class="simple-field">
+          <label>Abaje (1+7)</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Abana','present',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Abana-present" value="0" min="0" oninput="syncSimple('Abana','present')"/>
+            <button class="v-btn" onclick="changeSimple('Abana','present',1)">+</button>
+          </div>
+        </div>
+        <div class="simple-field">
+          <label>Abize (7)</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Abana','abize',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Abana-abize" value="0" min="0" oninput="syncSimple('Abana','abize')"/>
+            <button class="v-btn" onclick="changeSimple('Abana','abize',1)">+</button>
+          </div>
+        </div>
+        <div class="simple-field">
+          <label>Abashyitsi</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Abana','visitors',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Abana-visitors" value="0" min="0" oninput="syncSimple('Abana','visitors')"/>
+            <button class="v-btn" onclick="changeSimple('Abana','visitors',1)">+</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveSimpleStat('Abana')"><i class="ti ti-device-floppy" style="font-size:15px;vertical-align:-2px;margin-right:4px;"></i>Save Abana</button>
+    </div>
+    <div class="simple-cat-card">
+      <div class="simple-cat-title"><i class="ti ti-mood-kid" style="font-size:15px;"></i>INGIMBI</div>
+      <div class="simple-cat-grid">
+        <div class="simple-field">
+          <label>Abanditswe</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Ingimbi','registered',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Ingimbi-registered" value="0" min="0" oninput="syncSimple('Ingimbi','registered')"/>
+            <button class="v-btn" onclick="changeSimple('Ingimbi','registered',1)">+</button>
+          </div>
+        </div>
+        <div class="simple-field">
+          <label>Abaje (1+7)</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Ingimbi','present',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Ingimbi-present" value="0" min="0" oninput="syncSimple('Ingimbi','present')"/>
+            <button class="v-btn" onclick="changeSimple('Ingimbi','present',1)">+</button>
+          </div>
+        </div>
+        <div class="simple-field">
+          <label>Abize (7)</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Ingimbi','abize',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Ingimbi-abize" value="0" min="0" oninput="syncSimple('Ingimbi','abize')"/>
+            <button class="v-btn" onclick="changeSimple('Ingimbi','abize',1)">+</button>
+          </div>
+        </div>
+        <div class="simple-field">
+          <label>Abashyitsi</label>
+          <div class="visitors-input-wrap">
+            <button class="v-btn" onclick="changeSimple('Ingimbi','visitors',-1)">−</button>
+            <input type="number" class="visitors-input" id="sc-Ingimbi-visitors" value="0" min="0" oninput="syncSimple('Ingimbi','visitors')"/>
+            <button class="v-btn" onclick="changeSimple('Ingimbi','visitors',1)">+</button>
+          </div>
+        </div>
+      </div>
+      <button class="btn-save" onclick="saveSimpleStat('Ingimbi')"><i class="ti ti-device-floppy" style="font-size:15px;vertical-align:-2px;margin-right:4px;"></i>Save Ingimbi</button>
     </div>
   </div>
   <div id="leader-ig-wrap" style="display:none;">
@@ -558,7 +657,9 @@ async function sbUpsert(table, data, onConflict) {
 }
 
 // ═══ CONSTANTS ═══
-const CATS = ['Abana','Ingimbi','Abasore','Abakuze'];
+const CATS_ALL = ['Abana','Ingimbi','Abasore','Abakuze']; // used for IMIMURIKO table + history
+const CATS_ATTEND = ['Abasore','Abakuze']; // used for GUTANGA IMIMURIKO (name-based attendance tabs)
+const SIMPLE_CATS = ['Abana','Ingimbi']; // school-wide totals-only categories
 const CAT_ICONS = {'Abakuze':'ti-user','Abasore':'ti-users','Ingimbi':'ti-mood-kid','Abana':'ti-baby-carriage'};
 const ITSINDAS = ['Itsinda rya 1','Itsinda rya 2','Itsinda rya 3','Itsinda rya 4','Itsinda rya 5'];
 const AVCOLORS = [
@@ -576,6 +677,7 @@ function isOwner() {
 }
 let membersCache = []; // flat array from DB
 let visitorsCache = []; // flat array from DB
+let simpleStatsCache = []; // [{category,registered,present,abize,visitors}] for Abana/Ingimbi school-wide totals
 
 // ═══ LOADING ═══
 function showLoading(msg='Loading...') {
@@ -679,7 +781,18 @@ function countStats(list) {
 function combinedVisitors(cat) {
   let t=0; IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>t+=getVisitorCount(ig,cat,it))); return t;
 }
+function getSimpleStat(cat) {
+  return simpleStatsCache.find(s=>s.category===cat) || {category:cat,registered:0,present:0,abize:0,visitors:0};
+}
+function simpleCatStats(cat) {
+  const s=getSimpleStat(cat);
+  const total=s.registered||0, present=s.present||0, abize=s.abize||0, vis=s.visitors||0;
+  const scoreA=total===0?0:(present/total)*100;
+  const scoreB=present===0?0:(abize/present)*100;
+  return{total,present,abize,vis,scoreA,scoreB,final:(scoreA+scoreB)/2};
+}
 function combinedCatStats(cat) {
+  if (SIMPLE_CATS.includes(cat)) return simpleCatStats(cat);
   let total=0,present=0,abize=0;
   IGIHANDES.forEach(ig=>ITSINDAS.forEach(it=>{
     const s=countStats(getMembersList(ig,cat,it));
@@ -694,12 +807,14 @@ function combinedCatStats(cat) {
 async function loadAllData() {
   showLoading('Loading data...');
   try {
-    const [mems, vis] = await Promise.all([
+    const [mems, vis, simp] = await Promise.all([
       sbGet('members','select=*&order=name'),
-      sbGet('visitors','select=*')
+      sbGet('visitors','select=*'),
+      sbGet('simple_stats','select=*')
     ]);
     membersCache = Array.isArray(mems) ? mems : [];
     visitorsCache = Array.isArray(vis) ? vis : [];
+    simpleStatsCache = Array.isArray(simp) ? simp : [];
   } catch(e) {
     showToast('Connection error. Check your internet.', 'error');
   }
@@ -757,6 +872,7 @@ function showHome() {
     document.getElementById('admin-dash-cards').style.display='grid';
     document.getElementById('section-gutanga').style.display='none';
     document.getElementById('section-imimuriko').style.display='none';
+    document.getElementById('section-abanaingimbi').style.display='none';
     document.getElementById('section-igihembwe').style.display='none';
     document.getElementById('leader-ig-wrap').style.display='none';
     document.getElementById('btn-create-acc').style.display='flex';
@@ -776,8 +892,10 @@ function showHome() {
 }
 
 function showSection(name) {
+  if (name && (!currentUser || currentUser.role!=='admin')) return; // admin-only dashboards
   document.getElementById('section-gutanga').style.display='none';
   document.getElementById('section-imimuriko').style.display='none';
+  document.getElementById('section-abanaingimbi').style.display='none';
   document.getElementById('section-igihembwe').style.display='none';
   document.getElementById('admin-dash-cards').style.display='none';
   document.querySelectorAll('.dash-card').forEach(c=>c.classList.remove('active'));
@@ -797,6 +915,11 @@ function showSection(name) {
     document.getElementById('section-imimuriko').style.display='block';
     document.getElementById('home-sub').textContent='School-wide performance report.';
     buildImimurikoTable();
+  } else if (name==='abanaingimbi') {
+    document.getElementById('dash-abanaingimbi').classList.add('active');
+    document.getElementById('section-abanaingimbi').style.display='block';
+    document.getElementById('home-sub').textContent='Enter Abana & Ingimbi school-wide totals.';
+    renderAbanaIngimbi();
   } else if (name==='igihembwe') {
     document.getElementById('dash-igihembwe').classList.add('active');
     document.getElementById('section-igihembwe').style.display='block';
@@ -848,7 +971,7 @@ function openIgihande(ig) {
 }
 function buildCatTabs() {
   const tabs=document.getElementById('cat-tabs');tabs.innerHTML='';
-  CATS.forEach(cat=>{
+  CATS_ATTEND.forEach(cat=>{
     const btn=document.createElement('button');
     btn.className='tab'+(cat===currentCat?' active':'');
     btn.textContent=cat;
@@ -897,6 +1020,47 @@ function syncVisitors() {
   const idx=visitorsCache.findIndex(x=>x.igihande===currentIg&&x.category===currentCat&&x.itsinda===currentIt);
   if(idx>=0) visitorsCache[idx].count=v; else visitorsCache.push({igihande:currentIg,category:currentCat,itsinda:currentIt,count:v});
   document.getElementById('cs-vis').textContent=v;
+}
+
+// ═══ ABANA N'INGIMBI (school-wide totals only) ═══
+function renderSimpleCat(cat) {
+  const s=getSimpleStat(cat);
+  document.getElementById(`sc-${cat}-registered`).value=s.registered||0;
+  document.getElementById(`sc-${cat}-present`).value=s.present||0;
+  document.getElementById(`sc-${cat}-abize`).value=s.abize||0;
+  document.getElementById(`sc-${cat}-visitors`).value=s.visitors||0;
+}
+function renderAbanaIngimbi() {
+  SIMPLE_CATS.forEach(renderSimpleCat);
+}
+function updateSimpleCache(cat, field, val) {
+  let idx=simpleStatsCache.findIndex(s=>s.category===cat);
+  if(idx<0){ simpleStatsCache.push({category:cat,registered:0,present:0,abize:0,visitors:0}); idx=simpleStatsCache.length-1; }
+  simpleStatsCache[idx][field]=val;
+}
+function changeSimple(cat, field, delta) {
+  const inp=document.getElementById(`sc-${cat}-${field}`);
+  const v=Math.max(0,(parseInt(inp.value)||0)+delta);
+  inp.value=v;
+  updateSimpleCache(cat,field,v);
+}
+function syncSimple(cat, field) {
+  const inp=document.getElementById(`sc-${cat}-${field}`);
+  const v=Math.max(0,parseInt(inp.value)||0);
+  inp.value=v;
+  updateSimpleCache(cat,field,v);
+}
+async function saveSimpleStat(cat) {
+  const s=getSimpleStat(cat);
+  showLoading('Saving...');
+  try {
+    await sbUpsert('simple_stats',{category:cat,registered:s.registered||0,present:s.present||0,abize:s.abize||0,visitors:s.visitors||0},'category');
+    hideLoading();
+    showToast(`Saved! ${cat} — Abanditswe:${s.registered||0} Abaje:${s.present||0} Abize:${s.abize||0} Abashyitsi:${s.visitors||0}`);
+  } catch(e) {
+    hideLoading();
+    showToast('Save failed. Check connection.','error');
+  }
 }
 
 function renderMembers() {
@@ -1043,22 +1207,25 @@ function buildImimurikoTable() {
   document.getElementById('imim-sub-date').textContent=`All 7 Igihande · ${todayStr()}`;
   let gT=0,gP=0,gA=0,gV=0,sA=0,sB=0,sF=0;
 
-  CATS.forEach((cat,ci)=>{
+  CATS_ALL.forEach((cat,ci)=>{
     const s=combinedCatStats(cat);
     gT+=s.total;gP+=s.present;gA+=s.abize;gV+=s.vis;sA+=s.scoreA;sB+=s.scoreB;sF+=s.final;
+    const isSimple=SIMPLE_CATS.includes(cat);
 
-    // Main category row — clickable
+    // Main category row — clickable (except school-wide totals-only categories)
     const tr=document.createElement('tr');
-    tr.className='cat-row';
+    tr.className='cat-row'+(isSimple?' cat-row-simple':'');
     tr.id=`cat-row-${ci}`;
     tr.innerHTML=`
-      <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:13px;color:#185FA5;margin-right:5px;"></i>${cat}<span class="expand-icon">›</span></td>
+      <td class="left"><i class="ti ${CAT_ICONS[cat]}" style="font-size:13px;color:#185FA5;margin-right:5px;"></i>${cat}${isSimple?'':'<span class="expand-icon">›</span>'}</td>
       <td class="num-cell">${s.total}</td><td class="num-cell">${s.present}</td>
       <td class="num-cell">${s.abize}</td><td class="num-cell vis-col">${s.vis}</td>
       <td><span class="score-pill ${pillClass(s.scoreA)}">${fmt(s.scoreA)}%</span></td>
       <td><span class="score-pill ${pillClass(s.scoreB)}">${fmt(s.scoreB)}%</span></td>
       <td><span class="score-pill ${pillClass(s.final)}">${fmt(s.final)}%</span></td>`;
     tbody.appendChild(tr);
+
+    if (isSimple) return; // no per-Igihande drilldown — this is a school-wide totals entry
 
     // Drill-down row — hidden until clicked
     const drillTr=document.createElement('tr');
@@ -1105,7 +1272,7 @@ function buildImimurikoTable() {
     });
   });
 
-  const n=CATS.length,ftr=document.createElement('tr');ftr.className='final-row';
+  const n=CATS_ALL.length,ftr=document.createElement('tr');ftr.className='final-row';
   ftr.innerHTML=`
     <td class="left">BOSE</td>
     <td class="num-cell">${gT}</td><td class="num-cell">${gP}</td>
@@ -1191,7 +1358,7 @@ function renderHistory() {
       // Build table rows
       let rows = '';
       let gT=0,gP=0,gA=0,gV=0,sA=0,sB=0,sF=0;
-      CATS.forEach(cat => {
+      CATS_ALL.forEach(cat => {
         const s = data[cat] || {total:0,present:0,abize:0,vis:0,scoreA:0,scoreB:0,final:0};
         gT+=s.total;gP+=s.present;gA+=s.abize;gV+=(s.vis||0);
         sA+=s.scoreA;sB+=s.scoreB;sF+=s.final;
@@ -1204,7 +1371,7 @@ function renderHistory() {
           <td><span class="score-pill ${pillClass(s.final)}">${fmt(s.final)}%</span></td>
         </tr>`;
       });
-      const n=CATS.length;
+      const n=CATS_ALL.length;
       rows += `<tr style="background:#EBF3FD;font-weight:700;color:#185FA5;border-top:1.5px solid #185FA5;">
         <td class="left">BOSE</td>
         <td>${gT}</td><td>${gP}</td><td>${gA}</td><td style="color:#185FA5;">${gV}</td>
@@ -1252,7 +1419,7 @@ function renderHistory() {
 async function saveToHistory() {
   if (!isOwner()) { showToast('Only the owner account can save to history.', 'error'); return; }
   const snapshot = {};
-  CATS.forEach(cat => {
+  CATS_ALL.forEach(cat => {
     snapshot[cat] = combinedCatStats(cat);
   });
 
