@@ -135,6 +135,10 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .legend{display:flex;gap:10px;margin-bottom:10px;flex-wrap:wrap;}
 .legend-item{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--color-text-secondary);}
 .legend-box{width:24px;height:22px;border-radius:var(--border-radius-md);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;}
+.mark-btn{width:26px;height:30px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-tertiary);font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;padding:0;}
+.mark-btn:hover{border-color:#712B13;color:#712B13;}
+.mark-btn.active-m{background:#FAECE7;color:#712B13;border-color:#712B13;}
+.mark-btn.active-a{background:#EEEDFE;color:#3C3489;border-color:#3C3489;}
 .footer-btns{display:flex;gap:8px;margin-top:4px;}
 .btn-save{flex:1;background:#185FA5;color:#fff;border:none;border-radius:var(--border-radius-md);height:38px;font-size:14px;font-weight:500;cursor:pointer;}
 .btn-save:hover{background:#0C447C;}
@@ -150,6 +154,20 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 .modal-btns button{flex:1;height:34px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;padding:0;}
 .btn-confirm{background:#185FA5;color:#fff;border:none;}
 .btn-cancel{background:var(--color-background-secondary);color:var(--color-text-primary);border:0.5px solid var(--color-border-secondary);}
+.mcat{cursor:default;}
+.member-row{position:relative;}
+.recycle-list{margin-top:8px;}
+.recycle-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:0.5px solid var(--color-border-tertiary);}
+.recycle-row:last-child{border-bottom:none;}
+.recycle-info{flex:1;min-width:0;}
+.recycle-name{font-size:13px;font-weight:500;color:var(--color-text-primary);}
+.recycle-meta{font-size:11px;color:var(--color-text-secondary);margin-top:2px;}
+.recycle-btns{display:flex;gap:6px;flex-shrink:0;}
+.btn-restore{background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5;border-radius:var(--border-radius-md);height:28px;padding:0 10px;font-size:11px;cursor:pointer;}
+.btn-restore:hover{background:#5DCAA5;color:#fff;}
+.btn-purge{background:none;border:none;color:var(--color-text-tertiary);cursor:pointer;padding:3px;height:auto;border-radius:var(--border-radius-md);}
+.btn-purge:hover{color:#d32f2f;background:var(--color-background-danger);}
+.recycle-empty{font-size:12px;color:var(--color-text-tertiary);text-align:center;padding:20px 0;}
 .role-selector{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
 .role-opt{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-md);padding:10px 8px;text-align:center;cursor:pointer;transition:all .15s;}
 .role-opt:hover{border-color:#185FA5;}
@@ -513,6 +531,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     </div>
     <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
       <span style="font-size:11px;color:var(--color-text-secondary);" id="attend-date"></span>
+      <button class="btn-sm" onclick="openRecycleBin()"><i class="ti ti-trash" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>Recycle bin</button>
       <button class="btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>Back</button>
     </div>
   </div>
@@ -532,6 +551,8 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <div class="legend-item"><div class="legend-box" style="background:var(--color-background-secondary);color:var(--color-text-tertiary);border:0.5px solid var(--color-border-tertiary);">—</div>Abasibye</div>
     <div class="legend-item"><div class="legend-box" style="background:#EBF3FD;color:#185FA5;border:0.5px solid #185FA5;">1</div>Abaje</div>
     <div class="legend-item"><div class="legend-box" style="background:#E1F5EE;color:#085041;border:0.5px solid #5DCAA5;">7</div>Abize karindwi</div>
+    <div class="legend-item"><div class="legend-box" style="background:#FAECE7;color:#712B13;border:0.5px solid #712B13;">M</div>Malade</div>
+    <div class="legend-item"><div class="legend-box" style="background:#EEEDFE;color:#3C3489;border:0.5px solid #3C3489;">A</div>Yasengeye ahandi</div>
   </div>
   <div class="toolbar">
     <input type="text" id="search" placeholder="Search member…" oninput="renderMembers()"/>
@@ -583,18 +604,31 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
   </div>
 </div>
 
-<!-- ADD MEMBER MODAL -->
+<!-- ADD/EDIT MEMBER MODAL -->
 <div class="modal-bg" id="modal-member">
   <div class="modal">
-    <h3>Add member</h3>
+    <h3 id="m-modal-title">Add member</h3>
     <div id="m-context" style="font-size:12px;color:#185FA5;background:#EBF3FD;border-radius:var(--border-radius-md);padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
       <i class="ti ti-map-pin" style="font-size:14px;"></i>
       <span id="m-context-text"></span>
     </div>
     <label>Full name</label><input type="text" id="m-name" placeholder="e.g. Alice Uwimana"/>
+    <label>Phone number</label><input type="tel" id="m-phone" placeholder="e.g. 078 000 0000"/>
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal('modal-member')">Cancel</button>
-      <button class="btn-confirm" onclick="addMember()">Add</button>
+      <button class="btn-confirm" id="m-modal-confirm" onclick="saveMember()">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECYCLE BIN MODAL -->
+<div class="modal-bg" id="modal-recycle">
+  <div class="modal" style="max-width:400px;">
+    <h3><i class="ti ti-trash" style="font-size:15px;vertical-align:-2px;margin-right:5px;color:#185FA5;"></i>Recycle bin — <span id="recycle-ig-name"></span></h3>
+    <div style="font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px;">Members removed by mistake can be restored here.</div>
+    <div class="recycle-list" id="recycle-list"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal('modal-recycle')">Close</button>
     </div>
   </div>
 </div>
@@ -671,6 +705,8 @@ const IGIHANDES = ['Samuduha A','Samuduha B','Cyarugondo A','Cyarugondo B','Kabe
 // ═══ STATE ═══
 let currentUser = null, currentIg = null, currentCat = 'Abakuze', currentIt = 'Itsinda rya 1', activeSection = null;
 let selectedRole = 'leader';
+let editingMemberId = null; // null = Add mode, otherwise editing this member's id
+let deletedCache = []; // deleted_members rows for the currently open Igihande
 const OWNER_USERNAME = 'samuel';
 function isOwner() {
   return !!currentUser && (currentUser.username || '').toLowerCase() === OWNER_USERNAME;
@@ -1072,11 +1108,14 @@ function renderMembers() {
   el.innerHTML='';
   list.forEach((m,idx)=>{
     const s=m.score;
+    const phoneText = m.phone && m.phone.trim() ? m.phone : 'No phone number';
     const row=document.createElement('div');row.className='member-row';
     row.innerHTML=`
       <div class="avatar" style="${avatarStyle(idx)}">${initials(m.name)}</div>
-      <div class="minfo"><div class="mname">${m.name}</div><div class="mcat">${currentCat} · ${currentIt}</div></div>
+      <div class="minfo" data-id="${m.id}"><div class="mname">${m.name}</div><div class="mcat">${phoneText}</div></div>
       <div class="score-btns">
+        <button class="mark-btn${m.mark==='M'?' active-m':''}" data-id="${m.id}" data-mark="M" title="Malade">M</button>
+        <button class="mark-btn${m.mark==='A'?' active-a':''}" data-id="${m.id}" data-mark="A" title="Yasengeye ahandi">A</button>
         <button class="score-btn${s===0?' s0':''}" data-id="${m.id}" data-val="0">—</button>
         <button class="score-btn${s===1?' s1':''}" data-id="${m.id}" data-val="1">1</button>
         <button class="score-btn${s===7?' s7':''}" data-id="${m.id}" data-val="7">7</button>
@@ -1088,24 +1127,77 @@ function renderMembers() {
     btn.addEventListener('click',async()=>{
       const id=btn.dataset.id;
       const v=parseInt(btn.dataset.val);
-      // update cache immediately
+      // update cache immediately — choosing —/1/7 directly clears any M/A mark
       const m=membersCache.find(x=>x.id===id);
-      if(m) m.score=v;
+      if(m){ m.score=v; m.mark=null; }
       renderMembers();updateStats();
       // save to DB
-      await sbPatch('members',`id=eq.${id}`,{score:v});
+      await sbPatch('members',`id=eq.${id}`,{score:v,mark:null});
+    });
+  });
+  el.querySelectorAll('.mark-btn').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const id=btn.dataset.id;
+      const markVal=btn.dataset.mark; // 'M' or 'A'
+      const m=membersCache.find(x=>x.id===id);
+      if(!m) return;
+      // tapping the same mark again toggles it off (back to plain absence)
+      const newMark = (m.mark===markVal) ? null : markVal;
+      m.mark=newMark; m.score=0; // M/A always counts as absent for scoring
+      renderMembers();updateStats();
+      await sbPatch('members',`id=eq.${id}`,{score:0,mark:newMark});
     });
   });
   el.querySelectorAll('.btn-del').forEach(btn=>{
     btn.addEventListener('click',async()=>{
       const id=btn.dataset.id;
-      const name=membersCache.find(x=>x.id===id)?.name||'Member';
+      const m=membersCache.find(x=>x.id===id);
+      const name=m?.name||'Member';
       // remove from cache
       membersCache=membersCache.filter(x=>x.id!==id);
       buildItsindaTabs();renderMembers();updateStats();
-      showToast(name+' removed.');
-      // delete from DB
-      await sbDelete('members',`id=eq.${id}`);
+      showToast(name+' moved to recycle bin.');
+      // back up to deleted_members, then remove from members
+      try {
+        if (m) {
+          await sbPost('deleted_members',{original_id:m.id,igihande:m.igihande,category:m.category,itsinda:m.itsinda,name:m.name,phone:m.phone||null,score:m.score,mark:m.mark||null});
+        }
+        await sbDelete('members',`id=eq.${id}`);
+      } catch(e) {
+        showToast('Backup failed — restore from server may be needed.','error');
+      }
+    });
+  });
+  // Edit a member: long-press/click-and-hold (touch/mouse) OR right-click (PC where holding doesn't work)
+  el.querySelectorAll('.minfo').forEach(info=>{
+    let pressTimer=null, moved=false, startX=0, startY=0;
+    const start=(e)=>{
+      moved=false;
+      const pt=e.touches?e.touches[0]:e;
+      startX=pt.clientX;startY=pt.clientY;
+      pressTimer=setTimeout(()=>{
+        if(!moved) openEditMember(info.dataset.id);
+      },550);
+    };
+    const move=(e)=>{
+      const pt=e.touches?e.touches[0]:e;
+      if(Math.abs(pt.clientX-startX)>10||Math.abs(pt.clientY-startY)>10){
+        moved=true; clearTimeout(pressTimer);
+      }
+    };
+    const cancel=()=>clearTimeout(pressTimer);
+    info.addEventListener('mousedown',start);
+    info.addEventListener('mousemove',move);
+    info.addEventListener('mouseup',cancel);
+    info.addEventListener('mouseleave',cancel);
+    info.addEventListener('touchstart',start,{passive:true});
+    info.addEventListener('touchmove',move,{passive:true});
+    info.addEventListener('touchend',cancel);
+    // Right-click (PC users — pressing and holding a mouse button doesn't work well) opens edit instantly
+    info.addEventListener('contextmenu',e=>{
+      e.preventDefault();
+      clearTimeout(pressTimer);
+      openEditMember(info.dataset.id);
     });
   });
 }
@@ -1125,26 +1217,61 @@ async function saveAttendance() {
   }
 }
 
-// ═══ ADD MEMBER ═══
+// ═══ ADD / EDIT MEMBER ═══
 function openAddMember(){
+  editingMemberId=null;
+  document.getElementById('m-modal-title').textContent='Add member';
+  document.getElementById('m-modal-confirm').textContent='Add';
   document.getElementById('m-context-text').textContent=`${currentIg} · ${currentCat} · ${currentIt}`;
+  document.getElementById('m-name').value='';
+  document.getElementById('m-phone').value='';
+  document.getElementById('modal-member').style.display='flex';
+  document.getElementById('m-name').focus();
+}
+function openEditMember(id){
+  const m=membersCache.find(x=>x.id===id);
+  if(!m) return;
+  editingMemberId=id;
+  document.getElementById('m-modal-title').textContent='Edit member';
+  document.getElementById('m-modal-confirm').textContent='Save changes';
+  document.getElementById('m-context-text').textContent=`${m.igihande} · ${m.category} · ${m.itsinda}`;
+  document.getElementById('m-name').value=m.name;
+  document.getElementById('m-phone').value=m.phone||'';
   document.getElementById('modal-member').style.display='flex';
   document.getElementById('m-name').focus();
 }
 function closeModal(id){document.getElementById(id).style.display='none';}
 
-async function addMember() {
+async function saveMember() {
   const name=document.getElementById('m-name').value.trim();
-  // Always use current location — no dropdowns needed
+  const phone=document.getElementById('m-phone').value.trim();
+  if(!name) return;
+  if (editingMemberId) {
+    // EDIT MODE — update existing member's name/phone only
+    const id=editingMemberId;
+    showLoading('Saving changes...');
+    try {
+      await sbPatch('members',`id=eq.${id}`,{name,phone:phone||null});
+      const m=membersCache.find(x=>x.id===id);
+      if(m){ m.name=name; m.phone=phone; }
+      closeModal('modal-member');
+      renderMembers();
+      hideLoading();
+      showToast(`${name} updated.`);
+    } catch(e) {
+      hideLoading();
+      showToast('Failed to save changes.','error');
+    }
+    return;
+  }
+  // ADD MODE
   const cat=currentCat;
   const it=currentIt;
-  if(!name) return;
   showLoading('Adding member...');
   try {
-    const rows=await sbPost('members',{igihande:currentIg,category:cat,itsinda:it,name,score:0});
+    const rows=await sbPost('members',{igihande:currentIg,category:cat,itsinda:it,name,phone:phone||null,score:0});
     if(rows && rows[0]) membersCache.push(rows[0]);
     closeModal('modal-member');
-    document.getElementById('m-name').value='';
     renderMembers();
     buildItsindaTabs();updateStats();
     hideLoading();
@@ -1153,6 +1280,78 @@ async function addMember() {
     hideLoading();
     showToast('Failed to add member.','error');
   }
+}
+
+// ═══ RECYCLE BIN ═══
+async function openRecycleBin(){
+  document.getElementById('recycle-ig-name').textContent=currentIg;
+  document.getElementById('modal-recycle').style.display='flex';
+  document.getElementById('recycle-list').innerHTML='<div class="recycle-empty">Loading…</div>';
+  try {
+    const rows=await sbGet('deleted_members',`igihande=eq.${encodeURIComponent(currentIg)}&order=deleted_at.desc`);
+    deletedCache=Array.isArray(rows)?rows:[];
+    renderRecycleBin();
+  } catch(e) {
+    document.getElementById('recycle-list').innerHTML='<div class="recycle-empty">Failed to load. Check connection.</div>';
+  }
+}
+function renderRecycleBin(){
+  const el=document.getElementById('recycle-list');
+  if(!deletedCache.length){ el.innerHTML='<div class="recycle-empty">Recycle bin is empty.</div>'; return; }
+  el.innerHTML='';
+  deletedCache.forEach(d=>{
+    const row=document.createElement('div');row.className='recycle-row';
+    row.innerHTML=`
+      <div class="recycle-info">
+        <div class="recycle-name">${d.name}</div>
+        <div class="recycle-meta">${d.category} · ${d.itsinda}${d.phone?' · '+d.phone:''}</div>
+      </div>
+      <div class="recycle-btns">
+        <button class="btn-restore" data-id="${d.id}"><i class="ti ti-rotate" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Restore</button>
+        <button class="btn-purge" data-id="${d.id}" title="Delete permanently"><i class="ti ti-x" style="font-size:14px;"></i></button>
+      </div>`;
+    el.appendChild(row);
+  });
+  el.querySelectorAll('.btn-restore').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const id=btn.dataset.id;
+      const d=deletedCache.find(x=>x.id===id);
+      if(!d) return;
+      showLoading('Restoring...');
+      try {
+        const rows=await sbPost('members',{igihande:d.igihande,category:d.category,itsinda:d.itsinda,name:d.name,phone:d.phone||null,score:d.score||0,mark:d.mark||null});
+        if(rows && rows[0]) membersCache.push(rows[0]);
+        await sbDelete('deleted_members',`id=eq.${id}`);
+        deletedCache=deletedCache.filter(x=>x.id!==id);
+        renderRecycleBin();
+        if(d.category===currentCat && d.itsinda===currentIt){ renderMembers(); }
+        buildItsindaTabs();updateStats();
+        hideLoading();
+        showToast(`${d.name} restored.`);
+      } catch(e) {
+        hideLoading();
+        showToast('Restore failed. Check connection.','error');
+      }
+    });
+  });
+  el.querySelectorAll('.btn-purge').forEach(btn=>{
+    btn.addEventListener('click',async()=>{
+      const id=btn.dataset.id;
+      const d=deletedCache.find(x=>x.id===id);
+      if(!confirm(`Permanently delete ${d?d.name:'this record'}? This cannot be undone.`)) return;
+      showLoading('Deleting...');
+      try {
+        await sbDelete('deleted_members',`id=eq.${id}`);
+        deletedCache=deletedCache.filter(x=>x.id!==id);
+        renderRecycleBin();
+        hideLoading();
+        showToast('Permanently deleted.');
+      } catch(e) {
+        hideLoading();
+        showToast('Delete failed. Check connection.','error');
+      }
+    });
+  });
 }
 
 // ═══ CREATE ACCOUNT ═══
