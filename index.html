@@ -12,6 +12,13 @@
 <meta property="og:url" content="https://samuduha-sda-attendance.vercel.app"/>
 <meta property="og:image" content="https://samuduha-sda-attendance.vercel.app/og-image.png"/>
 <meta name="twitter:card" content="summary_large_image"/>
+<link rel="manifest" href="manifest.json"/>
+<meta name="theme-color" content="#185FA5"/>
+<link rel="icon" type="image/png" href="icon-192.png"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Samuduha"/>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css"/>
 <style>
 :root{
@@ -277,6 +284,17 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 </head>
 <body>
 <div class="page">
+
+<!-- OFFLINE GATE — blocks the entire app until real internet is confirmed,
+     so nobody can open a stale cached copy and think data was saved. -->
+<div id="offline-gate" style="display:none;position:fixed;inset:0;z-index:9999;background:#1e2029;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;">
+  <i class="ti ti-wifi-off" style="font-size:52px;color:#185FA5;margin-bottom:16px;"></i>
+  <div style="font-size:17px;font-weight:700;color:#fff;margin-bottom:8px;">No internet connection</div>
+  <div style="font-size:13px;color:#9aa1b1;max-width:320px;line-height:1.5;margin-bottom:22px;">This app needs internet to load and save attendance data. Please connect to Wi-Fi or mobile data, then try again.</div>
+  <button onclick="verifyConnection(true)" style="background:#185FA5;color:#fff;border:none;border-radius:var(--border-radius-md);padding:11px 22px;font-size:14px;font-weight:600;cursor:pointer;">
+    <i class="ti ti-refresh" style="font-size:15px;vertical-align:-2px;margin-right:5px;"></i>Try again
+  </button>
+</div>
 
 <!-- Loading overlay -->
 <div class="loading-overlay" id="loading-overlay">
@@ -652,6 +670,33 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
 // ═══ SUPABASE CONFIG ═══
 const SUPABASE_URL = 'https://axucjxkqgsykphkglmfx.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF4dWNqeGtxZ3N5a3Boa2dsbWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5NzI2OTEsImV4cCI6MjA5NjU0ODY5MX0.JJPR-aDczk1mmYDZNR_VGny2LjBQncjKJvHQ4bNT9fI';
+
+// ═══ OFFLINE GATE ═══
+// Blocks the whole app (even the login screen) until we can actually
+// reach the server — not just navigator.onLine, which can say "online"
+// even on Wi-Fi with no real internet. This stops anyone from opening
+// a stale cached copy and typing in attendance that silently won't save.
+let gateCheckInterval = null;
+async function verifyConnection(manual) {
+  const gate = document.getElementById('offline-gate');
+  const btn = gate.querySelector('button');
+  if (manual && btn) btn.disabled = true;
+  try {
+    await fetch(`${SUPABASE_URL}/rest/v1/`, { method:'GET', mode:'no-cors', cache:'no-store' });
+    gate.style.display = 'none';
+    if (gateCheckInterval) { clearInterval(gateCheckInterval); gateCheckInterval = null; }
+    if (btn) btn.disabled = false;
+    return true;
+  } catch (e) {
+    gate.style.display = 'flex';
+    if (!gateCheckInterval) gateCheckInterval = setInterval(() => verifyConnection(false), 4000);
+    if (btn) btn.disabled = false;
+    return false;
+  }
+}
+window.addEventListener('online', () => verifyConnection(false));
+window.addEventListener('offline', () => { document.getElementById('offline-gate').style.display = 'flex'; });
+verifyConnection(false); // run immediately, before the app is usable
 
 async function sbGet(table, filters='') {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${filters}`, {
@@ -1701,6 +1746,13 @@ function goHome() {
 function show(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
+}
+
+// Register service worker for installable app support (Add to Home Screen)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  });
 }
 </script>
 </body>
