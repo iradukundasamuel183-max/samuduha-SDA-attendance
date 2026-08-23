@@ -12,10 +12,11 @@
 <meta property="og:url" content="https://samuduha-sda-attendance.vercel.app"/>
 <meta property="og:image" content="https://samuduha-sda-attendance.vercel.app/og-image.png"/>
 <meta name="twitter:card" content="summary_large_image"/>
-<link rel="manifest" href="manifest.json"/>
+<link rel="manifest" href="/manifest.json"/>
 <meta name="theme-color" content="#185FA5"/>
-<link rel="icon" type="image/png" href="icon-192.png"/>
-<link rel="apple-touch-icon" href="icon-192.png"/>
+<link rel="icon" type="image/png" href="/icon-192.png"/>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="Samuduha"/>
@@ -682,7 +683,15 @@ async function verifyConnection(manual) {
   const btn = gate.querySelector('button');
   if (manual && btn) btn.disabled = true;
   try {
-    await fetch(`${SUPABASE_URL}/rest/v1/`, { method:'GET', mode:'no-cors', cache:'no-store' });
+    // Same auth pattern as sbGet/sbPost — a real, properly-authorized request
+    // (not a bare no-cors ping) so it doesn't show up as a console error.
+    // We only care whether the request reaches the server at all, not its
+    // status code, so any response — even an auth/data error — counts as "online".
+    await fetch(`${SUPABASE_URL}/rest/v1/simple_stats?select=category&limit=1`, {
+      method:'GET',
+      headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY},
+      cache:'no-store'
+    });
     gate.style.display = 'none';
     if (gateCheckInterval) { clearInterval(gateCheckInterval); gateCheckInterval = null; }
     if (btn) btn.disabled = false;
@@ -1794,7 +1803,7 @@ history.replaceState({screen:'login'}, '');
 // Register service worker for installable app support (Add to Home Screen)
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('/sw.js').catch(()=>{});
   });
 }
 </script>
