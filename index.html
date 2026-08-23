@@ -382,7 +382,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <div class="section-header">
       <div class="section-header-icon dash-icon-blue"><i class="ti ti-clipboard-list" style="font-size:15px;color:#185FA5;"></i></div>
       <span class="section-title-text">GUTANGA IMIMURIKO</span>
-      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+      <button class="btn-back-section" onclick="navigateBack()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
     </div>
     <div class="igihande-grid" id="ig-grid"></div>
   </div>
@@ -390,7 +390,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <div class="section-header">
       <div class="section-header-icon dash-icon-indigo"><i class="ti ti-chart-bar" style="font-size:15px;color:#3C3489;"></i></div>
       <span class="section-title-text">IMIMURIKO</span>
-      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+      <button class="btn-back-section" onclick="navigateBack()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
     </div>
     <div class="formula-note">
       <strong>Score A</strong> = (Abaje ÷ Total) × 100 &nbsp;·&nbsp;
@@ -417,7 +417,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <div class="section-header">
       <div class="section-header-icon dash-icon-amber"><i class="ti ti-baby-carriage" style="font-size:15px;color:#D4922A;"></i></div>
       <span class="section-title-text">ABANA N'INGIMBI</span>
-      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+      <button class="btn-back-section" onclick="navigateBack()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
     </div>
     <div class="formula-note">
       Enter <strong>school-wide totals</strong> only — no per-Igihande breakdown for these two groups.<br>
@@ -513,7 +513,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <div class="section-header">
       <div class="section-header-icon dash-icon-green"><i class="ti ti-calendar-stats" style="font-size:15px;color:#085041;"></i></div>
       <span class="section-title-text">IMIMURIKO Y'IGIHEMBWE</span>
-      <button class="btn-back-section" onclick="showSection(null)"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
+      <button class="btn-back-section" onclick="navigateBack()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:3px;"></i>Back</button>
     </div>
 
     <!-- Print-only header, shown only when printing -->
@@ -550,7 +550,7 @@ input:focus,select:focus{outline:2px solid #185FA5;outline-offset:1px;}
     <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
       <span style="font-size:11px;color:var(--color-text-secondary);" id="attend-date"></span>
       <button class="btn-sm" onclick="openRecycleBin()"><i class="ti ti-trash" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>Recycle bin</button>
-      <button class="btn-sm" onclick="goHome()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>Back</button>
+      <button class="btn-sm" onclick="navigateBack()"><i class="ti ti-arrow-left" style="font-size:12px;vertical-align:-1px;margin-right:2px;"></i>Back</button>
     </div>
   </div>
   <div class="tabs" id="cat-tabs"></div>
@@ -752,6 +752,7 @@ let currentUser = null, currentIg = null, currentCat = 'Abakuze', currentIt = 'I
 let selectedRole = 'leader';
 let editingMemberId = null; // null = Add mode, otherwise editing this member's id
 let deletedCache = []; // deleted_members rows for the currently open Igihande
+let navigatingFromHistory = false; // true while a popstate (back/forward) is being applied
 const OWNER_USERNAME = 'samuel';
 function isOwner() {
   return !!currentUser && (currentUser.username || '').toLowerCase() === OWNER_USERNAME;
@@ -926,6 +927,7 @@ async function doLogin() {
     currentUser = rows[0];
     await loadAllData();
     showHome();
+    pushNav({screen:'home', section:null});
   } catch(e) {
     hideLoading();
     document.getElementById('login-err').style.display='block';
@@ -986,7 +988,9 @@ function showSection(name) {
   if (!name) {
     document.getElementById('admin-dash-cards').style.display='grid';
     document.getElementById('home-sub').textContent='Select a dashboard to continue.';
-    activeSection=null; return;
+    activeSection=null;
+    pushNav({screen:'home', section:null});
+    return;
   }
   activeSection=name;
   if (name==='gutanga') {
@@ -1011,6 +1015,7 @@ function showSection(name) {
     document.getElementById('btn-save-history').style.display=isOwner()?'flex':'none';
     loadAndRenderHistory();
   }
+  pushNav({screen:'home', section:name||null});
 }
 
 // ═══ IGIHANDE GRIDS ═══
@@ -1052,6 +1057,7 @@ function openIgihande(ig) {
   document.getElementById('search').value='';
   show('screen-attend');
   buildCatTabs();buildItsindaTabs();renderMembers();updateStats();loadVisitors();
+  pushNav({screen:'attend', ig});
 }
 function buildCatTabs() {
   const tabs=document.getElementById('cat-tabs');tabs.innerHTML='';
@@ -1747,6 +1753,43 @@ function show(id) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
 }
+
+// ═══ BACK-BUTTON / BROWSER-HISTORY SUPPORT ═══
+// Makes the phone's hardware back button and the PC browser's back
+// button (Ctrl+Left / Alt+Left) navigate *inside* the app instead of
+// leaving it — same as any normal app.
+function pushNav(state) {
+  if (navigatingFromHistory) return; // don't push while we're restoring from a back/forward action
+  history.pushState(state, '');
+}
+function navigateBack() {
+  // Prefer real browser history (keeps forward-button working correctly too)
+  if (window.history.state) {
+    history.back();
+  } else if (document.getElementById('screen-attend').classList.contains('active')) {
+    goHome();
+  } else {
+    showSection(null);
+  }
+}
+window.addEventListener('popstate', (e) => {
+  navigatingFromHistory = true;
+  const st = e.state || {screen:'login'};
+  if (!currentUser && st.screen !== 'login') {
+    // signed out — always land on login, regardless of what the old history entry says
+    show('screen-login');
+  } else if (st.screen === 'login') {
+    show('screen-login');
+  } else if (st.screen === 'attend' && st.ig) {
+    openIgihande(st.ig);
+  } else { // 'home' (or anything else) falls back to home
+    showHome();
+    if (currentUser.role === 'admin') showSection(st.section || null);
+  }
+  navigatingFromHistory = false;
+});
+// Establish the base history entry so there's always a defined state to return to
+history.replaceState({screen:'login'}, '');
 
 // Register service worker for installable app support (Add to Home Screen)
 if ('serviceWorker' in navigator) {
