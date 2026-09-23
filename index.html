@@ -743,6 +743,16 @@ async function sbUpsert(table, data, onConflict) {
   });
   return r.json();
 }
+async function sbRpc(fn, args) {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/${fn}`, {
+    method:'POST',
+    headers:{'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'},
+    body:JSON.stringify(args)
+  });
+  const data = await r.json();
+  if (!r.ok) throw new Error((data && data.message) || 'Request failed');
+  return data;
+}
 
 // ═══ CONSTANTS ═══
 const CATS_ALL = ['Abana','Ingimbi','Abasore','Abakuze']; // used for IMIMURIKO table + history
@@ -927,9 +937,9 @@ async function doLogin() {
   const p=document.getElementById('l-pass').value;
   showLoading('Signing in...');
   try {
-    const rows = await sbGet('accounts',`username=eq.${encodeURIComponent(u)}&password=eq.${encodeURIComponent(p)}`);
+    const rows = await sbRpc('login', {p_username:u, p_password:p});
     hideLoading();
-    if (!rows || rows.length===0) {
+    if (!Array.isArray(rows) || rows.length===0) {
       document.getElementById('login-err').style.display='block'; return;
     }
     document.getElementById('login-err').style.display='none';
@@ -1438,16 +1448,14 @@ async function createAccount() {
   if(!name||!user||!pass){showToast('Please fill all fields.','error');return;}
   showLoading('Creating account...');
   try {
-    const existing=await sbGet('accounts',`username=eq.${encodeURIComponent(user)}`);
-    if(existing&&existing.length>0){hideLoading();showToast('Username already taken!','error');return;}
-    await sbPost('accounts',{username:user,password:pass,role:selectedRole,name,igihande:ig});
+    await sbRpc('create_account', {p_username:user, p_password:pass, p_role:selectedRole, p_name:name, p_igihande:ig});
     closeModal('modal-account');
     ['a-name','a-user','a-pass'].forEach(id=>document.getElementById(id).value='');
     hideLoading();
     showToast(`Account created: ${name} (${selectedRole})`);
   } catch(e) {
     hideLoading();
-    showToast('Failed to create account.','error');
+    showToast(e.message==='username_taken' ? 'Username already taken!' : 'Failed to create account.','error');
   }
 }
 
